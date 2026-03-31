@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { Mail, CheckCircle2, ArrowLeft } from 'lucide-react'
+import { Mail, CheckCircle2, ArrowLeft, Trash2, MailOpen, Reply, Forward } from 'lucide-react'
 import { useMailStore } from '../store/mailStore'
 import { gmailService } from '../services/gmailService'
 import { cryptoService } from '../services/cryptoService'
@@ -82,11 +82,16 @@ function EmailFrame({ html }: { html: string }) {
 }
 
 export function MailView() {
-  const { selectedMail, accessToken, decryptedContent, decryptError, setDecrypted, setDecryptError, currentFolder, setSelected } = useMailStore()
+  const { selectedMail, accessToken, decryptedContent, decryptError, setDecrypted, setDecryptError, currentFolder, setSelected, mailList, setMailList, openReply, openForward } = useMailStore()
   const [fullMail, setFullMail] = useState(selectedMail)
   const [payload, setPayload] = useState<CryptoPayload | null>(null)
   const [loading, setLoading] = useState(false)
   const [decryptedSubject, setDecryptedSubject] = useState<string | null>(null)
+  const [isRead, setIsRead] = useState(selectedMail?.isRead ?? true)
+
+  useEffect(() => {
+    if (selectedMail) setIsRead(selectedMail.isRead)
+  }, [selectedMail?.id])
 
   useEffect(() => {
     if (!selectedMail || !accessToken) return
@@ -157,6 +162,36 @@ export function MailView() {
     }
   }
 
+  async function handleDelete() {
+    if (!accessToken || !selectedMail) return
+    try {
+      await gmailService.trashMessage(accessToken, selectedMail.id)
+      setMailList(mailList.filter((m) => m.id !== selectedMail.id))
+      setSelected(null)
+    } catch (err) {
+      console.error('Failed to delete message:', err)
+    }
+  }
+
+  async function handleToggleRead() {
+    if (!accessToken || !selectedMail) return
+    try {
+      await gmailService.modifyLabels(
+        accessToken,
+        selectedMail.id,
+        isRead ? ['UNREAD'] : [],
+        isRead ? [] : ['UNREAD'],
+      )
+      const newIsRead = !isRead
+      setIsRead(newIsRead)
+      setMailList(mailList.map((m) =>
+        m.id === selectedMail.id ? { ...m, isRead: newIsRead } : m,
+      ))
+    } catch (err) {
+      console.error('Failed to toggle read status:', err)
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl px-3 py-4 animate-fade-in md:px-8 md:py-6">
       {/* Back button — mobile only */}
@@ -167,6 +202,24 @@ export function MailView() {
         <ArrowLeft className="h-4 w-4" />
         Back
       </button>
+
+      {/* Toolbar */}
+      <div className="flex items-center gap-1 mb-3 border-b border-slate-100 pb-3">
+        <button
+          onClick={handleDelete}
+          className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-slate-500 hover:bg-slate-50 cursor-pointer transition-colors"
+        >
+          <Trash2 className="h-4 w-4" />
+          Delete
+        </button>
+        <button
+          onClick={handleToggleRead}
+          className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-slate-500 hover:bg-slate-50 cursor-pointer transition-colors"
+        >
+          {isRead ? <MailOpen className="h-4 w-4" /> : <Mail className="h-4 w-4" />}
+          {isRead ? 'Mark unread' : 'Mark read'}
+        </button>
+      </div>
 
       {/* Subject */}
       <h1 className="text-xl font-normal text-gmail-text leading-tight">
@@ -222,6 +275,32 @@ export function MailView() {
       {!payload && fullMail?.body && (
         <EmailFrame html={fullMail.body} />
       )}
+
+      {/* Reply & Forward buttons */}
+      {(decryptedContent || (!payload && fullMail?.body)) && (() => {
+        const displaySubject = decryptedSubject ?? selectedMail.subject
+        const displayBody = decryptedContent ?? fullMail?.body ?? ''
+        const quotedBody = `\n\n--- Original Message ---\nFrom: ${from}\nDate: ${formatDate(selectedMail.date)}\n\n${displayBody}`
+        const messageId = fullMail?.headers?.['Message-ID'] ?? ''
+        return (
+          <div className="mt-6 flex items-center gap-3">
+            <button
+              onClick={() => openReply(email, displaySubject, quotedBody, messageId)}
+              className="flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+            >
+              <Reply className="h-4 w-4" />
+              Reply
+            </button>
+            <button
+              onClick={() => openForward(displaySubject, quotedBody)}
+              className="flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+            >
+              <Forward className="h-4 w-4" />
+              Forward
+            </button>
+          </div>
+        )
+      })()}
     </div>
   )
 }

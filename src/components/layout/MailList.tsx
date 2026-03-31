@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
-import { RefreshCw, Lock, MailX, SearchX } from 'lucide-react'
+import { RefreshCw, Lock, MailX, SearchX, Loader2 } from 'lucide-react'
 import { useMailStore } from '../../store/mailStore'
+import { useMail } from '../../hooks/useMail'
 import { formatDate } from '../../utils/formatDate'
 import type { MailMeta } from '../../types'
 
@@ -68,7 +69,8 @@ function MailRow({
 }
 
 export function MailList() {
-  const { mailList, selectedMail, isLoading, setSelected, currentFolder, searchQuery } = useMailStore()
+  const { selectedMail, isLoading, setSelected, currentFolder, searchQuery } = useMailStore()
+  const { mailList, loadMore, hasMore, loadingMore } = useMail()
   const folderLabels: Record<string, string> = {
     inbox: 'Inbox',
     sent: 'Sent',
@@ -134,6 +136,22 @@ export function MailList() {
               onClick={() => setSelected({ ...mail, body: '', headers: {} })}
             />
           ))}
+          {hasMore && (
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="w-full py-3 text-sm text-blue-600 hover:bg-blue-50 font-medium cursor-pointer transition-colors disabled:cursor-default"
+            >
+              {loadingMore ? (
+                <span className="inline-flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading...
+                </span>
+              ) : (
+                'Load more'
+              )}
+            </button>
+          )}
         </div>
       )}
     </div>

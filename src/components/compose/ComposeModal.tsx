@@ -3,17 +3,20 @@ import { PenSquare, X, Lock } from 'lucide-react'
 import { useMailStore } from '../../store/mailStore'
 import { cryptoService } from '../../services/cryptoService'
 import { gmailService } from '../../services/gmailService'
-import { buildMimeMessage } from '../../utils/mimeBuilder'
+import { buildMimeMessage, buildReplyMimeMessage } from '../../utils/mimeBuilder'
 import { PasswordLock } from './PasswordLock'
 import { Spinner } from '../common/Spinner'
 
 interface Props { onSent: () => void }
 
 export function ComposeModal({ onSent }: Props) {
-  const { toggleCompose, user, accessToken } = useMailStore()
-  const [to, setTo] = useState('')
-  const [subject, setSubject] = useState('')
-  const [body, setBody] = useState('')
+  const { toggleCompose, user, accessToken, composeMode, composeTo, composeSubject, composeBody, replyMessageId } = useMailStore()
+  const [to, setTo] = useState(composeTo)
+  const [cc, setCc] = useState('')
+  const [bcc, setBcc] = useState('')
+  const [showCcBcc, setShowCcBcc] = useState(false)
+  const [subject, setSubject] = useState(composeSubject)
+  const [body, setBody] = useState(composeBody)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [sending, setSending] = useState(false)
@@ -28,7 +31,9 @@ export function ComposeModal({ onSent }: Props) {
     setError('')
     try {
       const payload = await cryptoService.encrypt(body, password, subject)
-      const raw = buildMimeMessage(user.email, to, payload)
+      const raw = composeMode === 'reply' && replyMessageId
+        ? buildReplyMimeMessage(user.email, to, payload, replyMessageId)
+        : buildMimeMessage(user.email, to, payload, cc, bcc)
       await gmailService.sendMessage(accessToken, raw)
       toggleCompose()
       onSent()
@@ -50,7 +55,9 @@ export function ComposeModal({ onSent }: Props) {
         <div className="flex items-center justify-between rounded-t-2xl bg-gmail-text px-4 py-3 sm:px-5 shrink-0">
           <div className="flex items-center gap-2 text-white">
             <PenSquare className="h-4 w-4" />
-            <h2 className="text-sm font-medium">New Message</h2>
+            <h2 className="text-sm font-medium">
+              {composeMode === 'reply' ? 'Reply' : composeMode === 'forward' ? 'Forward' : 'New Message'}
+            </h2>
           </div>
           <button onClick={toggleCompose} aria-label="Close" className="cursor-pointer rounded-full p-1 text-gray-400 hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
             <X className="h-4 w-4" />
@@ -66,10 +73,47 @@ export function ComposeModal({ onSent }: Props) {
               value={to}
               onChange={(e) => setTo(e.target.value)}
               required
-              className="flex-1 text-sm text-gmail-text outline-none placeholder:text-gmail-text-secondary/50"
+              readOnly={composeMode === 'reply'}
+              className={`flex-1 text-sm text-gmail-text outline-none placeholder:text-gmail-text-secondary/50${composeMode === 'reply' ? ' bg-gray-50 cursor-not-allowed' : ''}`}
               placeholder="recipient@gmail.com"
             />
+            {!showCcBcc && (
+              <span
+                onClick={() => setShowCcBcc(true)}
+                className="text-xs text-gmail-text-secondary cursor-pointer hover:underline select-none"
+              >
+                Cc Bcc
+              </span>
+            )}
           </div>
+
+          {/* Cc */}
+          {showCcBcc && (
+            <div className="flex items-center gap-2 border-b border-gmail-border/50 pb-2">
+              <label className="text-sm text-gmail-text-secondary">Cc</label>
+              <input
+                type="email"
+                value={cc}
+                onChange={(e) => setCc(e.target.value)}
+                className="flex-1 text-sm text-gmail-text outline-none placeholder:text-gmail-text-secondary/50"
+                placeholder="cc@gmail.com"
+              />
+            </div>
+          )}
+
+          {/* Bcc */}
+          {showCcBcc && (
+            <div className="flex items-center gap-2 border-b border-gmail-border/50 pb-2">
+              <label className="text-sm text-gmail-text-secondary">Bcc</label>
+              <input
+                type="email"
+                value={bcc}
+                onChange={(e) => setBcc(e.target.value)}
+                className="flex-1 text-sm text-gmail-text outline-none placeholder:text-gmail-text-secondary/50"
+                placeholder="bcc@gmail.com"
+              />
+            </div>
+          )}
 
           {/* Subject */}
           <div className="flex items-center gap-2 border-b border-gmail-border/50 pb-2">

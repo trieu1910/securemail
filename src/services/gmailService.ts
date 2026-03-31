@@ -96,17 +96,19 @@ function extractBody(payload: Record<string, unknown>): string {
 }
 
 export const gmailService = {
-  async listMessages(token: string, folder: 'inbox' | 'sent' | 'trash'): Promise<MailMeta[]> {
+  async listMessages(token: string, folder: 'inbox' | 'sent' | 'trash', pageToken?: string): Promise<{ messages: MailMeta[]; nextPageToken: string | null }> {
     const labelMap = { inbox: 'label:inbox', sent: 'label:sent', trash: 'label:trash' }
-    const data = await apiFetch(`${BASE}/messages?q=${labelMap[folder]}&maxResults=50`, token)
-    if (!data.messages) return []
+    let url = `${BASE}/messages?q=${labelMap[folder]}&maxResults=20`
+    if (pageToken) url += `&pageToken=${pageToken}`
+    const data = await apiFetch(url, token)
+    if (!data.messages) return { messages: [], nextPageToken: null }
 
-    // Fetch each message detail in parallel (limited to first 20)
-    const ids: string[] = data.messages.slice(0, 20).map((m: {id: string}) => m.id)
+    // Fetch each message detail in parallel
+    const ids: string[] = data.messages.map((m: {id: string}) => m.id)
     const details = await Promise.all(
       ids.map((id) => apiFetch(`${BASE}/messages/${id}?format=full&fields=id,threadId,labelIds,snippet,internalDate,payload(headers,mimeType)`, token))
     )
-    return details.map(parseMailMeta)
+    return { messages: details.map(parseMailMeta), nextPageToken: data.nextPageToken || null }
   },
 
   async getMessage(token: string, id: string): Promise<MailDetail> {
@@ -124,6 +126,20 @@ export const gmailService = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ raw }),
+    })
+  },
+
+  async trashMessage(token: string, id: string): Promise<void> {
+    await apiFetch(`${BASE}/messages/${id}/trash`, token, {
+      method: 'POST',
+    })
+  },
+
+  async modifyLabels(token: string, id: string, addLabels: string[], removeLabels: string[]): Promise<void> {
+    await apiFetch(`${BASE}/messages/${id}/modify`, token, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ addLabelIds: addLabels, removeLabelIds: removeLabels }),
     })
   },
 
