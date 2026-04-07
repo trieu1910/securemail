@@ -4,7 +4,11 @@ import { highlightJson } from '../../utils/highlightJson'
 interface Props { payload: CryptoPayload }
 
 export function CipherPanel({ payload }: Props) {
-  const raw = JSON.stringify(payload, null, 2)
+  // Build a display version: replace attachments array with a summary to keep the panel readable
+  const displayPayload = payload.attachments && payload.attachments.length > 0
+    ? { ...payload, attachments: `[${payload.attachments.length} encrypted file${payload.attachments.length > 1 ? 's' : ''}]` as unknown }
+    : payload
+  const raw = JSON.stringify(displayPayload, null, 2)
   const preview = raw.length > 500 ? raw.slice(0, 500) + '\n  ...' : raw
   const highlighted = highlightJson(preview)
 

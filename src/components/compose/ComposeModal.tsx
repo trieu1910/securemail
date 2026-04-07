@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { PenSquare, X, Lock } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { PenSquare, X, Lock, Paperclip, FileText } from 'lucide-react'
 import { useMailStore } from '../../store/mailStore'
 import { cryptoService } from '../../services/cryptoService'
 import { gmailService } from '../../services/gmailService'
@@ -17,10 +17,14 @@ export function ComposeModal({ onSent }: Props) {
   const [showCcBcc, setShowCcBcc] = useState(false)
   const [subject, setSubject] = useState(composeSubject)
   const [body, setBody] = useState(composeBody)
+  const [files, setFiles] = useState<File[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
+
+  const totalFileSize = files.reduce((sum, f) => sum + f.size, 0)
 
   const canSend = to && subject && body && password.length >= 8 && password === confirm
 
@@ -30,7 +34,7 @@ export function ComposeModal({ onSent }: Props) {
     setSending(true)
     setError('')
     try {
-      const payload = await cryptoService.encrypt(body, password, subject)
+      const payload = await cryptoService.encrypt(body, password, subject, files)
       const raw = composeMode === 'reply' && replyMessageId
         ? buildReplyMimeMessage(user.email, to, payload, replyMessageId)
         : buildMimeMessage(user.email, to, payload, cc, bcc)
@@ -142,6 +146,56 @@ export function ComposeModal({ onSent }: Props) {
             placeholder="Your message..."
             className="w-full text-sm text-gmail-text outline-none placeholder:text-gmail-text-secondary/50 resize-none min-h-[160px]"
           />
+
+          {/* File attachments */}
+          <div className="space-y-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                if (e.target.files) {
+                  setFiles((prev) => [...prev, ...Array.from(e.target.files!)])
+                  e.target.value = ''
+                }
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-gmail-text-secondary hover:bg-gmail-hover transition-colors"
+            >
+              <Paperclip className="h-4 w-4" />
+              Attach files
+            </button>
+            {files.length > 0 && (
+              <div className="space-y-1.5">
+                {files.map((file, idx) => (
+                  <div key={`${file.name}-${idx}`} className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200 px-3 py-1.5 text-sm">
+                    <FileText className="h-4 w-4 text-slate-400 shrink-0" />
+                    <span className="truncate text-gmail-text">{file.name}</span>
+                    <span className="text-xs text-gmail-text-secondary shrink-0">
+                      {file.size < 1024 ? `${file.size} B` : file.size < 1048576 ? `${(file.size / 1024).toFixed(1)} KB` : `${(file.size / 1048576).toFixed(1)} MB`}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
+                      className="ml-auto shrink-0 rounded-full p-0.5 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                      aria-label={`Remove ${file.name}`}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+                {totalFileSize > 15 * 1024 * 1024 && (
+                  <p className="text-xs text-amber-600 font-medium">
+                    Total size ({(totalFileSize / 1048576).toFixed(1)} MB) exceeds 15 MB. The email may fail to send.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
 
           <div className="border-t border-gmail-border/50 pt-3 space-y-3">
             {/* Encryption mode indicator */}

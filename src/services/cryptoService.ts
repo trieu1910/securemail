@@ -1,5 +1,5 @@
 import { arrayBufferToBase64url, base64urlToArrayBuffer } from '../utils/base64'
-import type { CryptoPayload } from '../types'
+import type { CryptoPayload, EncryptedAttachment } from '../types'
 
 const ENC = new TextEncoder()
 const DEC = new TextDecoder()
@@ -27,7 +27,7 @@ export const cryptoService = {
    * Both body and subject are bundled as JSON before encryption —
    * the subject is NEVER stored in plaintext in the payload.
    */
-  async encrypt(plaintext: string, password: string, subject = ''): Promise<CryptoPayload> {
+  async encrypt(plaintext: string, password: string, subject = '', files: File[] = []): Promise<CryptoPayload> {
     // Bundle body + subject together so both are encrypted as one unit
     const bundle = JSON.stringify({ body: plaintext, subject })
 
@@ -49,6 +49,24 @@ export const cryptoService = {
     // 6. Wrap the content key using AES-KW (RFC 3394 — no IV needed, purpose-built key wrap)
     const encryptedKey = await crypto.subtle.wrapKey('raw', contentKey, wrappingKey, 'AES-KW')
 
+    // 7. Encrypt file attachments — each gets its own IV, same content key
+    const attachments: EncryptedAttachment[] = []
+    for (const file of files) {
+      const fileData = await file.arrayBuffer()
+      const fileIv = crypto.getRandomValues(new Uint8Array(12))
+      const encryptedData = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: fileIv }, contentKey, fileData)
+      // Prepend IV (12 bytes) to ciphertext so decrypt can extract it
+      const combined = new Uint8Array(12 + encryptedData.byteLength)
+      combined.set(fileIv, 0)
+      combined.set(new Uint8Array(encryptedData), 12)
+      attachments.push({
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        data: arrayBufferToBase64url(combined.buffer),
+      })
+    }
+
     return {
       version: '1.0',
       mode: 'password',
@@ -57,11 +75,16 @@ export const cryptoService = {
       iv: arrayBufferToBase64url(iv.buffer),
       encryptedKey: arrayBufferToBase64url(encryptedKey),
       salt: arrayBufferToBase64url(salt.buffer),
+      ...(attachments.length > 0 ? { attachments } : {}),
     }
   },
 
-  /** Decrypt a CryptoPayload. Returns { body, subject }. */
-  async decrypt(payload: CryptoPayload, password: string): Promise<{ body: string; subject: string }> {
+  /** Decrypt a CryptoPayload. Returns { body, subject, attachments? }. */
+  async decrypt(payload: CryptoPayload, password: string): Promise<{
+    body: string
+    subject: string
+    attachments?: { name: string; type: string; size: number; data: ArrayBuffer }[]
+  }> {
     if (!payload.salt) throw new Error('Missing salt in payload')
 
     const salt = new Uint8Array(base64urlToArrayBuffer(payload.salt))
@@ -86,19 +109,41 @@ export const cryptoService = {
     )
 
     const bundle = JSON.parse(DEC.decode(plainBytes)) as { body: string; subject: string }
-    return bundle
+
+    // Decrypt file attachments if present
+    let attachments: { name: string; type: string; size: number; data: ArrayBuffer }[] | undefined
+    if (payload.attachments && payload.attachments.length > 0) {
+      attachments = []
+      for (const att of payload.attachments) {
+        const combined = new Uint8Array(base64urlToArrayBuffer(att.data))
+        const fileIv = combined.slice(0, 12)
+        const encryptedData = combined.slice(12)
+        const decryptedData = await crypto.subtle.decrypt(
+          { name: 'AES-GCM', iv: fileIv },
+          contentKey,
+          encryptedData
+        )
+        attachments.push({
+          name: att.name,
+          type: att.type,
+          size: att.size,
+          data: decryptedData,
+        })
+      }
+    }
+
+    return { ...bundle, attachments }
   },
 
   /** Check if an email body string is a SecureMail encrypted payload */
   isEncryptedMail(body: unknown): boolean {
     if (typeof body !== 'string' || !body) return false
-    try {
-      const trimmed = body.trim()
-      if (!trimmed.startsWith('{')) return false
-      const parsed = JSON.parse(trimmed)
-      return parsed.version === '1.0' && parsed.mode === 'password'
-    } catch {
-      return false
-    }
+    const trimmed = body.trim()
+    if (!trimmed.startsWith('{')) return false
+    // Quick check without full JSON.parse — handles large payloads with attachments
+    // that may be truncated by Gmail API format=full
+    return trimmed.includes('"version":"1.0"') && (
+      trimmed.includes('"mode":"password"') || trimmed.includes('"mode": "password"')
+    )
   },
 }

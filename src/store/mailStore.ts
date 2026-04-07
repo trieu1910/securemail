@@ -11,13 +11,13 @@ interface MailStore {
   // Mail
   mailList: MailMeta[]
   selectedMail: MailDetail | null
-  currentFolder: 'inbox' | 'sent' | 'trash' | 'encrypted-inbox' | 'encrypted-sent'
+  currentFolder: 'inbox' | 'sent' | 'trash' | 'spam' | 'encrypted-inbox' | 'encrypted-sent'
   nextPageToken: string | null
   setMailList: (list: MailMeta[]) => void
   appendMailList: (list: MailMeta[]) => void
   setNextPageToken: (token: string | null) => void
   setSelected: (mail: MailDetail | null) => void
-  setFolder: (folder: 'inbox' | 'sent' | 'trash' | 'encrypted-inbox' | 'encrypted-sent') => void
+  setFolder: (folder: 'inbox' | 'sent' | 'trash' | 'spam' | 'encrypted-inbox' | 'encrypted-sent') => void
 
   // Decrypt
   decryptedContent: string | null

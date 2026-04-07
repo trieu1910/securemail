@@ -1,12 +1,13 @@
-import { Inbox, Send, Trash2, PenSquare, ShieldCheck, Lock } from 'lucide-react'
+import { Inbox, Send, Trash2, PenSquare, ShieldCheck, ShieldAlert, Lock } from 'lucide-react'
 import { useMailStore } from '../../store/mailStore'
 
-type FolderId = 'inbox' | 'sent' | 'trash' | 'encrypted-inbox' | 'encrypted-sent'
+type FolderId = 'inbox' | 'sent' | 'trash' | 'spam' | 'encrypted-inbox' | 'encrypted-sent'
 
 const folders: { id: FolderId; label: string; Icon: typeof Inbox }[] = [
   { id: 'inbox', label: 'Inbox', Icon: Inbox },
   { id: 'sent', label: 'Sent', Icon: Send },
   { id: 'trash', label: 'Trash', Icon: Trash2 },
+  { id: 'spam', label: 'Spam', Icon: ShieldAlert },
 ]
 
 const encryptedFolders: { id: FolderId; label: string; Icon: typeof Lock }[] = [

@@ -15,19 +15,25 @@ export function useMail() {
     if (!accessToken) return
     setLoading(true)
     try {
-      // encrypted-inbox and encrypted-sent are virtual folders
-      // that filter from real inbox/sent
-      const apiFolder = currentFolder === 'encrypted-inbox' ? 'inbox'
-        : currentFolder === 'encrypted-sent' ? 'sent'
-        : currentFolder
-
-      const { messages, nextPageToken: npt } = await gmailService.listMessages(accessToken, apiFolder)
-      setNextPageToken(npt)
-
-      // Filter for encrypted-only virtual folders
-      if (currentFolder === 'encrypted-inbox' || currentFolder === 'encrypted-sent') {
+      // encrypted-inbox: fetch from inbox + spam (encrypted mails may land in spam)
+      // encrypted-sent: fetch from sent
+      if (currentFolder === 'encrypted-inbox') {
+        const [inboxRes, spamRes] = await Promise.all([
+          gmailService.listMessages(accessToken, 'inbox'),
+          gmailService.listMessages(accessToken, 'spam'),
+        ])
+        const merged = [...inboxRes.messages, ...spamRes.messages]
+          .filter((m) => m.isEncrypted)
+          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        setMailList(merged)
+        setNextPageToken(null) // no pagination for virtual folders
+      } else if (currentFolder === 'encrypted-sent') {
+        const { messages } = await gmailService.listMessages(accessToken, 'sent')
         setMailList(messages.filter((m) => m.isEncrypted))
+        setNextPageToken(null)
       } else {
+        const { messages, nextPageToken: npt } = await gmailService.listMessages(accessToken, currentFolder)
+        setNextPageToken(npt)
         setMailList(messages)
       }
     } catch (err) {

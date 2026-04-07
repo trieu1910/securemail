@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { Mail, CheckCircle2, ArrowLeft, Trash2, MailOpen, Reply, Forward } from 'lucide-react'
+import { Mail, CheckCircle2, ArrowLeft, Trash2, MailOpen, Reply, Forward, FileText, Download, Paperclip } from 'lucide-react'
 import { useMailStore } from '../store/mailStore'
 import { gmailService } from '../services/gmailService'
 import { cryptoService } from '../services/cryptoService'
@@ -87,6 +87,7 @@ export function MailView() {
   const [payload, setPayload] = useState<CryptoPayload | null>(null)
   const [loading, setLoading] = useState(false)
   const [decryptedSubject, setDecryptedSubject] = useState<string | null>(null)
+  const [decryptedAttachments, setDecryptedAttachments] = useState<{ name: string; type: string; size: number; data: ArrayBuffer }[]>([])
   const [isRead, setIsRead] = useState(selectedMail?.isRead ?? true)
 
   useEffect(() => {
@@ -100,12 +101,36 @@ export function MailView() {
     setDecrypted(null)
     setDecryptError(null)
     setDecryptedSubject(null)
+    setDecryptedAttachments([])
 
     gmailService.getMessage(accessToken, selectedMail.id)
-      .then((detail) => {
+      .then(async (detail) => {
         setFullMail(detail)
         if (cryptoService.isEncryptedMail(detail.body)) {
-          setPayload(JSON.parse(detail.body.trim()) as CryptoPayload)
+          // Gmail may encode long text/plain as quoted-printable, inserting
+          // "=\r\n" or "=\n" soft line breaks. Must remove the "=" too,
+          // otherwise base64url values get corrupted with trailing "=".
+          const cleanBody = detail.body.trim()
+            .replace(/=\r?\n/g, '')   // quoted-printable soft line breaks
+            .replace(/[\r\n\t]/g, '') // remaining line breaks
+          try {
+            setPayload(JSON.parse(cleanBody) as CryptoPayload)
+          } catch {
+            // Body may be truncated by Gmail API for large payloads.
+            // Fetch raw MIME for the complete body.
+            console.warn('CryptoPayload parse failed, fetching raw MIME...')
+            const rawBody = await gmailService.getMessageRaw(accessToken, selectedMail.id)
+            if (rawBody) {
+              const cleanRaw = rawBody.trim()
+                .replace(/=\r?\n/g, '')
+                .replace(/[\r\n\t]/g, '')
+              try {
+                setPayload(JSON.parse(cleanRaw) as CryptoPayload)
+              } catch (e) {
+                console.error('Raw body parse also failed:', e)
+              }
+            }
+          }
         }
       })
       .catch(console.error)
@@ -151,12 +176,25 @@ export function MailView() {
   const recipientName = extractName(to)
   const recipientEmail = extractEmail(to)
 
+  function handleDownloadAttachment(att: { name: string; type: string; data: ArrayBuffer }) {
+    const blob = new Blob([att.data], { type: att.type || 'application/octet-stream' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = att.name
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   async function handleDecrypt(password: string) {
     if (!payload) return
     try {
       const result = await cryptoService.decrypt(payload, password)
       setDecrypted(result.body)
       setDecryptedSubject(result.subject)
+      if (result.attachments) setDecryptedAttachments(result.attachments)
     } catch {
       setDecryptError('Decryption failed. Wrong password or corrupted message.')
     }
@@ -268,6 +306,41 @@ export function MailView() {
             <p className="mb-2 text-sm font-semibold text-gmail-text">Subject: {decryptedSubject}</p>
           )}
           <div className="whitespace-pre-wrap text-sm text-gmail-text leading-relaxed">{decryptedContent}</div>
+        </div>
+      )}
+
+      {/* Decrypted attachments */}
+      {decryptedAttachments.length > 0 && (
+        <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 p-4 animate-slide-up">
+          <div className="mb-3 flex items-center gap-1.5 text-slate-600">
+            <Paperclip className="h-4 w-4" />
+            <span className="text-xs font-bold uppercase tracking-wider">
+              {decryptedAttachments.length} Decrypted Attachment{decryptedAttachments.length > 1 ? 's' : ''}
+            </span>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {decryptedAttachments.map((att, idx) => (
+              <div
+                key={`${att.name}-${idx}`}
+                className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-3"
+              >
+                <FileText className="h-8 w-8 text-slate-400 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-gmail-text">{att.name}</p>
+                  <p className="text-xs text-gmail-text-secondary">
+                    {att.size < 1024 ? `${att.size} B` : att.size < 1048576 ? `${(att.size / 1024).toFixed(1)} KB` : `${(att.size / 1048576).toFixed(1)} MB`}
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleDownloadAttachment(att)}
+                  className="shrink-0 rounded-full p-2 text-gmail-blue hover:bg-blue-50 transition-colors"
+                  aria-label={`Download ${att.name}`}
+                >
+                  <Download className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

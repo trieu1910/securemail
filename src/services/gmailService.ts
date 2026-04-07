@@ -91,13 +91,21 @@ function extractBody(payload: Record<string, unknown>): string {
 
   walk(parts)
 
-  // Prefer HTML over plain text
+  // For encrypted SecureMail messages, the payload is always text/plain JSON.
+  // Gmail may wrap it in HTML with <div> tags, breaking JSON parsing.
+  // Prefer text/plain if it looks like a CryptoPayload JSON.
+  if (textBody && textBody.trimStart().startsWith('{') && textBody.includes('"version"')) {
+    // Clean quoted-printable soft line breaks that Gmail may inject
+    return textBody.replace(/=\r?\n/g, '').replace(/[\r\n\t]/g, '')
+  }
+
+  // Otherwise prefer HTML for rich email rendering
   return htmlBody || textBody
 }
 
 export const gmailService = {
-  async listMessages(token: string, folder: 'inbox' | 'sent' | 'trash', pageToken?: string): Promise<{ messages: MailMeta[]; nextPageToken: string | null }> {
-    const labelMap = { inbox: 'label:inbox', sent: 'label:sent', trash: 'label:trash' }
+  async listMessages(token: string, folder: 'inbox' | 'sent' | 'trash' | 'spam', pageToken?: string): Promise<{ messages: MailMeta[]; nextPageToken: string | null }> {
+    const labelMap = { inbox: 'label:inbox', sent: 'label:sent', trash: 'label:trash', spam: 'label:spam' }
     let url = `${BASE}/messages?q=${labelMap[folder]}&maxResults=20`
     if (pageToken) url += `&pageToken=${pageToken}`
     const data = await apiFetch(url, token)
@@ -114,11 +122,54 @@ export const gmailService = {
   async getMessage(token: string, id: string): Promise<MailDetail> {
     const msg = await apiFetch(`${BASE}/messages/${id}?format=full`, token)
     const meta = parseMailMeta(msg)
-    const body = extractBody(msg.payload as Record<string, unknown>)
+    let body = extractBody(msg.payload as Record<string, unknown>)
+
+    // Gmail API format=full may truncate large bodies (>1MB).
+    // If body is empty but the email is encrypted, fetch raw MIME and extract body.
+    if (!body && meta.isEncrypted) {
+      try {
+        const rawMsg = await apiFetch(`${BASE}/messages/${id}?format=raw`, token)
+        if (rawMsg.raw) {
+          const mimeStr = decodeBase64Utf8(rawMsg.raw)
+          // Extract body after double CRLF (end of headers)
+          const bodyStart = mimeStr.indexOf('\r\n\r\n')
+          if (bodyStart !== -1) {
+            body = mimeStr.substring(bodyStart + 4).trim()
+          }
+        }
+      } catch {
+        // Fallback: body stays empty
+      }
+    }
+
     const headers: Record<string, string> = {}
     const rawHeaders = (msg.payload as Record<string, unknown>)?.headers as Array<{name: string, value: string}> ?? []
     rawHeaders.forEach((h) => { headers[h.name] = h.value })
     return { ...meta, to: headers['To'] ?? '', body, headers }
+  },
+
+  /** Fetch raw MIME and extract body — used when format=full truncates large payloads */
+  async getMessageRaw(token: string, id: string): Promise<string | null> {
+    try {
+      const rawMsg = await apiFetch(`${BASE}/messages/${id}?format=raw`, token)
+      if (!rawMsg.raw) return null
+      // Gmail raw is base64url-encoded MIME. Use Uint8Array for large payloads (atob fails on >1MB).
+      const raw = rawMsg.raw as string
+      const base64 = raw.replace(/-/g, '+').replace(/_/g, '/')
+      const binaryStr = atob(base64)
+      const bytes = new Uint8Array(binaryStr.length)
+      for (let i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i)
+      const mimeStr = new TextDecoder('utf-8').decode(bytes)
+      // Find body after double CRLF (end of headers). Also try \n\n as fallback.
+      let bodyStart = mimeStr.indexOf('\r\n\r\n')
+      if (bodyStart === -1) bodyStart = mimeStr.indexOf('\n\n')
+      if (bodyStart === -1) return null
+      const sep = mimeStr[bodyStart] === '\r' ? 4 : 2
+      return mimeStr.substring(bodyStart + sep).trim()
+    } catch (err) {
+      console.error('getMessageRaw failed:', err)
+      return null
+    }
   },
 
   async sendMessage(token: string, raw: string): Promise<void> {
