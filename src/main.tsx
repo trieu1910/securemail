@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Landing } from './pages/Landing'
 import { Docs } from './pages/Docs'
+import { Workflow } from './pages/Workflow'
 import { Login } from './pages/Login'
 import { AuthCallback } from './pages/AuthCallback'
 import { Inbox } from './pages/Inbox'
@@ -20,6 +21,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/docs" element={<Docs />} />
+        <Route path="/workflow" element={<Workflow />} />
         <Route path="/login" element={<Login />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />

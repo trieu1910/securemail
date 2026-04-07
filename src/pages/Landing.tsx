@@ -333,6 +333,7 @@ export function Landing() {
             <a href="#how-it-works" className="text-sm font-medium text-slate-600 transition-colors hover:text-blue-600">{t('How It Works', 'Cách hoạt động')}</a>
             <a href="#limitations" className="text-sm font-medium text-slate-600 transition-colors hover:text-blue-600">{t('Limitations', 'Hạn chế')}</a>
             <a href="#team" className="text-sm font-medium text-slate-600 transition-colors hover:text-blue-600">{t('Team', 'Nhóm')}</a>
+            <button onClick={() => navigate('/workflow')} className="cursor-pointer text-sm font-medium text-slate-600 transition-colors hover:text-blue-600">{t('Workflow', 'Quy trình')}</button>
             <button onClick={() => navigate('/docs')} className="cursor-pointer text-sm font-medium text-blue-600 transition-colors hover:text-blue-700">{t('Docs', 'Tài liệu')}</button>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
@@ -370,6 +371,7 @@ export function Landing() {
                 <a href="#how-it-works" onClick={() => setMenuOpen(false)} className="block py-1 text-base font-medium text-slate-600 transition-colors hover:text-blue-600">{t('How It Works', 'Cách hoạt động')}</a>
                 <a href="#limitations" onClick={() => setMenuOpen(false)} className="block py-1 text-base font-medium text-slate-600 transition-colors hover:text-blue-600">{t('Limitations', 'Hạn chế')}</a>
                 <a href="#team" onClick={() => setMenuOpen(false)} className="block py-1 text-base font-medium text-slate-600 transition-colors hover:text-blue-600">{t('Team', 'Nhóm')}</a>
+                <button onClick={() => { setMenuOpen(false); navigate('/workflow') }} className="block cursor-pointer py-1 text-left text-base font-medium text-slate-600 transition-colors hover:text-blue-600">{t('Workflow', 'Quy trình')}</button>
                 <button onClick={() => { setMenuOpen(false); navigate('/docs') }} className="block cursor-pointer py-1 text-left text-base font-medium text-blue-600 transition-colors hover:text-blue-700">{t('Docs', 'Tài liệu')}</button>
                 <button
                   onClick={() => { setMenuOpen(false); navigate('/login') }}
