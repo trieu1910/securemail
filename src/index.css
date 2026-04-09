@@ -67,3 +67,17 @@
   max-width: 100% !important;
   box-sizing: border-box;
 }
+
+/* Safe area support for notched Android/iOS devices */
+.safe-top { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Prevent zoom on input focus — Android Chrome (16px threshold) */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* Standalone PWA mode */
+@media (display-mode: standalone) {
+  body { overscroll-behavior: none; }
+}

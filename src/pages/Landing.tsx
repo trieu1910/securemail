@@ -62,13 +62,63 @@ const getFeatures = (t: (en: string, vi: string) => string) => [
       'Khóa mã hóa không bao giờ rời trình duyệt. Gmail chỉ thấy bản mã. Không máy chủ nghĩa là không có điểm yếu tập trung.',
     ),
   },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-7 h-7">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75" />
+      </svg>
+    ),
+    title: t('RSA-OAEP Asymmetric Encryption', 'Mã hóa bất đối xứng RSA-OAEP'),
+    desc: t(
+      '4096-bit RSA public key encryption. Share your public key openly — only your private key can decrypt messages sent to you.',
+      'Mã hóa khóa công khai RSA 4096-bit. Chia sẻ khóa công khai thoải mái — chỉ khóa riêng tư mới giải mã được tin nhắn gửi cho bạn.',
+    ),
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-7 h-7">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.864 4.243A7.5 7.5 0 0 1 19.5 10.5c0 2.92-.556 5.709-1.568 8.268M5.742 6.364A7.465 7.465 0 0 0 4.5 10.5a7.464 7.464 0 0 1-1.15 3.993m1.989 3.559A11.209 11.209 0 0 0 8.25 10.5a3.75 3.75 0 1 1 7.5 0c0 .527-.021 1.049-.064 1.565M12 10.5a14.94 14.94 0 0 1-3.6 9.75m6.633-4.596a18.666 18.666 0 0 1-2.485 5.33" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75" />
+      </svg>
+    ),
+    title: t('ECDSA Digital Signatures', 'Chữ ký số ECDSA'),
+    desc: t(
+      'ECDSA P-384 signatures verify sender authenticity. Recipients can confirm messages weren\'t forged or tampered with.',
+      'Chữ ký ECDSA P-384 xác minh danh tính người gửi. Người nhận có thể xác nhận tin nhắn không bị giả mạo hay chỉnh sửa.',
+    ),
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-7 h-7">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+      </svg>
+    ),
+    title: t('Defense-in-Depth Security', 'Bảo mật nhiều lớp'),
+    desc: t(
+      'Content Security Policy headers, iframe sandboxing, token validation, and rate-limited decryption protect against XSS and brute-force attacks.',
+      'CSP headers, iframe sandbox, xác thực token, và giới hạn tốc độ giải mã bảo vệ chống tấn công XSS và brute-force.',
+    ),
+  },
+  {
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-7 h-7">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+      </svg>
+    ),
+    title: t('Dual Encryption Modes', 'Hai chế độ mã hóa'),
+    desc: t(
+      'Choose password-based symmetric encryption for simplicity, or RSA public key encryption for multi-party secure communication.',
+      'Chọn mã hóa đối xứng bằng mật khẩu cho đơn giản, hoặc mã hóa khóa công khai RSA cho giao tiếp bảo mật nhiều bên.',
+    ),
+  },
 ]
 
 const getSteps = (t: (en: string, vi: string) => string) => [
   {
     step: '01',
     title: t('Compose', 'Soạn thư'),
-    desc: t('Write your email and set an encryption password.', 'Viết email và đặt mật khẩu mã hóa.'),
+    desc: t('Write your email and choose encryption mode: password or public key (RSA).', 'Viết email và chọn chế độ mã hóa: mật khẩu hoặc khóa công khai (RSA).'),
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-10 h-10">
         <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
@@ -79,8 +129,8 @@ const getSteps = (t: (en: string, vi: string) => string) => [
     step: '02',
     title: t('Encrypt', 'Mã hóa'),
     desc: t(
-      'Subject + body are encrypted client-side into a CryptoPayload JSON before sending.',
-      'Tiêu đề + nội dung được mã hóa phía client thành CryptoPayload JSON trước khi gửi.',
+      'Subject + body are encrypted client-side using AES-256-GCM. Optionally signed with ECDSA for sender verification.',
+      'Tiêu đề + nội dung được mã hóa phía client bằng AES-256-GCM. Tùy chọn ký bằng ECDSA để xác minh người gửi.',
     ),
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-10 h-10">
@@ -113,14 +163,6 @@ const getLimitations = (t: (en: string, vi: string) => string) => [
     severity: 'high',
   },
   {
-    title: t('No digital signature (sender verification)', 'Không có chữ ký số (xác minh người gửi)'),
-    desc: t(
-      "SecureMail does not verify who sent the email. A third party with the recipient's public information could forge encrypted messages.",
-      'SecureMail không xác minh ai gửi email. Bên thứ ba có thông tin công khai của người nhận có thể giả mạo tin nhắn mã hóa.',
-    ),
-    severity: 'medium',
-  },
-  {
     title: t('Replay attacks not prevented', 'Không ngăn chặn tấn công phát lại'),
     desc: t(
       'An intercepted encrypted email could be re-sent. The recipient has no way to detect duplicates without timestamp/nonce verification.',
@@ -147,8 +189,8 @@ const getLimitations = (t: (en: string, vi: string) => string) => [
   {
     title: t('Frontend-only architecture', 'Kiến trúc chỉ frontend'),
     desc: t(
-      'No backend means no server-side key escrow, no rate limiting on brute-force, and no centralized audit logs.',
-      'Không backend nghĩa là không có ký gửi khóa phía server, không giới hạn tốc độ brute-force, và không có nhật ký kiểm toán tập trung.',
+      'No backend means no server-side key escrow and no centralized audit logs. However, CSP headers, rate-limited decryption, and digital signatures are now implemented client-side.',
+      'Không backend nghĩa là không có ký gửi khóa phía server và không có nhật ký kiểm toán tập trung. Tuy nhiên, CSP headers, giới hạn tốc độ giải mã và chữ ký số đã được triển khai phía client.',
     ),
     severity: 'medium',
   },
@@ -161,6 +203,8 @@ const TECH = [
   { name: 'TailwindCSS',    color: 'bg-cyan-100 text-cyan-700' },
   { name: 'Zustand',        color: 'bg-amber-100 text-amber-700' },
   { name: 'Web Crypto API', color: 'bg-emerald-100 text-emerald-700' },
+  { name: 'RSA-OAEP',       color: 'bg-green-100 text-green-700' },
+  { name: 'ECDSA P-384',    color: 'bg-teal-100 text-teal-700' },
   { name: 'Gmail REST API', color: 'bg-red-100 text-red-700' },
   { name: 'OAuth2 PKCE',    color: 'bg-indigo-100 text-indigo-700' },
   { name: 'Vitest',         color: 'bg-green-100 text-green-700' },
@@ -425,7 +469,9 @@ export function Landing() {
             <p className="mx-auto mb-10 max-w-2xl text-base sm:text-lg leading-relaxed text-slate-600 md:text-xl">
               {t('SecureMail encrypts your email content client-side using', 'SecureMail mã hóa nội dung email phía client bằng')}{' '}
               <strong className="font-semibold text-slate-700 dark:text-gray-200">AES-256-GCM</strong> {t('with', 'với')}{' '}
-              <strong className="font-semibold text-slate-700 dark:text-gray-200">PBKDF2</strong> {t('key derivation before it ever touches Gmail. No backend, no compromise.', 'dẫn xuất khóa trước khi gửi lên Gmail. Không backend, không thỏa hiệp.')}
+              <strong className="font-semibold text-slate-700 dark:text-gray-200">PBKDF2</strong> {t('key derivation or', 'dẫn xuất khóa hoặc mã hóa khóa công khai')}{' '}
+              <strong className="font-semibold text-slate-700 dark:text-gray-200">RSA-OAEP 4096-bit</strong> {t('public key encryption, with optional', ', kèm chữ ký số')}{' '}
+              <strong className="font-semibold text-slate-700 dark:text-gray-200">ECDSA</strong> {t('digital signatures — before it ever touches Gmail. No backend, no compromise.', 'tùy chọn — trước khi gửi lên Gmail. Không backend, không thỏa hiệp.')}
             </p>
 
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -454,7 +500,7 @@ export function Landing() {
 
           {/* Crypto badge strip */}
           <div className="mx-auto mt-16 flex max-w-2xl flex-wrap items-center justify-center gap-3">
-            {['AES-256-GCM', 'PBKDF2-SHA256', 'AES-KW 256-bit', '100K Iterations', 'Web Crypto API'].map((badge) => (
+            {['AES-256-GCM', 'RSA-OAEP 4096', 'ECDSA P-384', 'PBKDF2-SHA256', 'AES-KW 256-bit', '100K Iterations', 'Web Crypto API'].map((badge) => (
               <span
                 key={badge}
                 className="rounded-full border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-1.5 text-xs font-medium text-slate-600 shadow-sm"
@@ -673,12 +719,13 @@ export function Landing() {
 
           <div className="mx-auto mt-14 max-w-4xl">
             {/* Password Mode */}
-            <div className="mb-10 rounded-2xl border border-slate-700/50 bg-slate-800/50 p-4 sm:p-6 md:p-8">
+            <div className="mb-6 rounded-2xl border border-amber-500/30 bg-slate-800/50 p-4 sm:p-6 md:p-8">
               <h3 className="mb-6 flex items-center gap-3 text-lg font-semibold text-white">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-6 w-6 text-amber-400">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
                 </svg>
-                {t('Encryption Flow', 'Quy trình mã hóa')}
+                <span>{t('Password Mode', 'Chế độ mật khẩu')}</span>
+                <span className="ml-auto rounded-full border border-amber-500/40 bg-amber-500/10 px-3 py-0.5 text-xs font-medium text-amber-400">{t('Symmetric', 'Đối xứng')}</span>
               </h3>
               <div className="flex flex-col items-center gap-3 md:flex-row md:gap-0">
                 {['Password', 'PBKDF2 (100K)', 'Derived Key', 'AES-KW Wrap', 'AES-256-GCM', 'Ciphertext'].map(
@@ -688,7 +735,35 @@ export function Landing() {
                         {step}
                       </span>
                       {i < arr.length - 1 && (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 shrink-0 text-blue-400 md:rotate-0 rotate-90">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 shrink-0 text-amber-400 md:rotate-0 rotate-90">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
+                      )}
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+
+            {/* RSA Mode */}
+            <div className="mb-10 rounded-2xl border border-emerald-500/30 bg-slate-800/50 p-4 sm:p-6 md:p-8">
+              <h3 className="mb-6 flex items-center gap-3 text-lg font-semibold text-white">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-6 w-6 text-emerald-400">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75" />
+                </svg>
+                <span>{t('RSA Mode', 'Chế độ RSA')}</span>
+                <span className="ml-auto rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-0.5 text-xs font-medium text-emerald-400">{t('Asymmetric', 'Bất đối xứng')}</span>
+              </h3>
+              <div className="flex flex-col items-center gap-3 md:flex-row md:gap-0">
+                {['Public Key', 'RSA-OAEP Wrap', 'AES-256 Content Key', 'AES-256-GCM', 'Ciphertext + ECDSA Signature'].map(
+                  (step, i, arr) => (
+                    <div key={step} className="flex items-center gap-3">
+                      <span className="whitespace-nowrap rounded-lg border border-slate-600 bg-slate-700 px-3 py-2 text-xs font-medium text-slate-200">
+                        {step}
+                      </span>
+                      {i < arr.length - 1 && (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4 shrink-0 text-emerald-400 md:rotate-0 rotate-90">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                         </svg>
                       )}
@@ -781,8 +856,8 @@ export function Landing() {
 
           <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-slate-500">
             {t(
-              'These limitations are inherent to client-side-only encryption architecture. A production system would add a backend for key escrow, CSP headers, digital signatures, and replay protection.',
-              'Những hạn chế này là cố hữu của kiến trúc mã hóa chỉ phía client. Hệ thống production sẽ thêm backend cho ký gửi khóa, CSP headers, chữ ký số và bảo vệ phát lại.',
+              'These limitations are inherent to client-side-only encryption architecture. SecureMail now includes CSP headers, ECDSA digital signatures, and rate-limited decryption. A production system would additionally add a backend for key escrow, centralized audit logs, and replay protection.',
+              'Những hạn chế này là cố hữu của kiến trúc mã hóa chỉ phía client. SecureMail hiện đã có CSP headers, chữ ký số ECDSA và giới hạn tốc độ giải mã. Hệ thống production sẽ bổ sung thêm backend cho ký gửi khóa, nhật ký kiểm toán tập trung và bảo vệ phát lại.',
             )}
           </p>
         </div>

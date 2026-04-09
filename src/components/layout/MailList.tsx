@@ -43,7 +43,7 @@ const MailRow = React.memo(function MailRow({
   return (
     <button
       onClick={handleClick}
-      className={`group w-full cursor-pointer border-b border-gmail-border/40 dark:border-gray-700 px-3 py-2 text-left transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset md:px-4 ${
+      className={`group w-full cursor-pointer touch-manipulation min-h-[56px] border-b border-gmail-border/40 dark:border-gray-700 px-3 py-2 text-left transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset md:px-4 ${
         selected
           ? 'bg-gmail-sidebar/70 dark:bg-gray-700'
           : 'hover:bg-gmail-hover dark:hover:bg-gray-700/50'
@@ -108,7 +108,7 @@ export function MailList() {
   const isSentFolder = currentFolder === 'sent' || currentFolder === 'encrypted-sent'
 
   return (
-    <div className="h-full w-full border-x border-gmail-border/50 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto flex flex-col md:w-80">
+    <div className="h-full w-full border-x border-gmail-border/50 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-y-auto overscroll-contain flex flex-col md:w-80">
       <div className="flex items-center justify-between border-b border-gmail-border/50 dark:border-gray-700 px-3 py-2.5 md:px-4">
         <h2 className="text-xs font-bold uppercase tracking-wide text-gmail-text-secondary dark:text-gray-400">
           {isSearching ? `Results (${filtered.length})` : folderLabels[currentFolder]}

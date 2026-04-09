@@ -31,7 +31,7 @@ export function TopBar() {
   }, [])
 
   return (
-    <header className="flex h-14 items-center justify-between bg-white dark:bg-gray-800 px-3 shadow-sm dark:shadow-gray-900/30 md:h-16 md:px-4">
+    <header className="safe-top flex h-14 items-center justify-between bg-white dark:bg-gray-800 px-3 shadow-sm dark:shadow-gray-900/30 md:h-16 md:px-4">
       {/* Logo */}
       <div className="flex items-center gap-1.5 min-w-0 md:gap-2 md:min-w-[200px]">
         <ShieldCheck className="h-5 w-5 md:h-6 md:w-6 text-gmail-blue shrink-0" />

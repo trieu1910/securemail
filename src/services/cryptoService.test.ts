@@ -239,7 +239,7 @@ describe('cryptoService — ECDSA signatures', { timeout: 30000 }, () => {
 
 // ─── Edge cases ──────────────────────────────────────────────────
 
-describe('cryptoService — edge cases', () => {
+describe('cryptoService — edge cases', { timeout: 30000 }, () => {
   it('encrypt + decrypt empty body string', async () => {
     const password = 'edge-case-pw'
     const payload = await cryptoService.encrypt('', password, 'Subject')

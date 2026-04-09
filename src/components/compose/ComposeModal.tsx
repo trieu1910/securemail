@@ -176,13 +176,13 @@ export function ComposeModal({ onSent }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-40 flex items-end justify-center p-4 sm:items-center sm:justify-center">
+    <div className="fixed inset-0 z-40 flex items-end justify-center sm:items-center sm:justify-center sm:p-4">
       {/* Backdrop */}
       <div className="fixed inset-0 bg-black/20" onClick={toggleCompose} />
 
-      {/* Modal */}
+      {/* Modal — full-screen on mobile, centered on sm+ */}
       <div
-        className="relative w-full max-w-lg max-h-[90vh] rounded-2xl bg-white dark:bg-gray-800 shadow-2xl animate-slide-up flex flex-col"
+        className="safe-bottom relative w-full h-full sm:h-auto sm:max-w-lg sm:max-h-[90vh] sm:rounded-2xl bg-white dark:bg-gray-800 shadow-2xl animate-slide-up flex flex-col"
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
         onDragLeave={(e) => { if (e.currentTarget === e.target || !e.currentTarget.contains(e.relatedTarget as Node)) setIsDragging(false) }}
         onDrop={(e) => {
@@ -195,7 +195,7 @@ export function ComposeModal({ onSent }: Props) {
       >
         {/* Drag & drop overlay */}
         {isDragging && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center rounded-2xl border-2 border-dashed border-gmail-blue bg-blue-50/80 dark:bg-blue-900/40">
+          <div className="absolute inset-0 z-50 flex items-center justify-center sm:rounded-2xl border-2 border-dashed border-gmail-blue bg-blue-50/80 dark:bg-blue-900/40">
             <div className="text-center">
               <Upload className="mx-auto h-8 w-8 text-gmail-blue" />
               <p className="mt-2 text-sm font-medium text-gmail-blue">
