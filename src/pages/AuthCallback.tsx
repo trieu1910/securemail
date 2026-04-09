@@ -30,10 +30,10 @@ export function AuthCallback() {
   }, [])
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gmail-bg">
+    <div className="flex min-h-screen items-center justify-center bg-gmail-bg dark:bg-gray-900">
       <div className="text-center">
         <Loader2 className="mx-auto mb-3 h-8 w-8 animate-spin text-gmail-blue" />
-        <p className="text-sm text-gmail-text-secondary">Completing sign-in...</p>
+        <p className="text-sm text-gmail-text-secondary dark:text-gray-400">Completing sign-in...</p>
       </div>
     </div>
   )

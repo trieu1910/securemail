@@ -1,5 +1,5 @@
 import { arrayBufferToBase64url, base64urlToArrayBuffer } from '../utils/base64'
-import type { CryptoPayload, EncryptedAttachment } from '../types'
+import type { CryptoPayload, EncryptedAttachment, RSAKeyPair, SigningKeyPair } from '../types'
 
 const ENC = new TextEncoder()
 const DEC = new TextDecoder()
@@ -143,7 +143,257 @@ export const cryptoService = {
     // Quick check without full JSON.parse — handles large payloads with attachments
     // that may be truncated by Gmail API format=full
     return trimmed.includes('"version":"1.0"') && (
-      trimmed.includes('"mode":"password"') || trimmed.includes('"mode": "password"')
+      trimmed.includes('"mode":"password"') || trimmed.includes('"mode": "password"') ||
+      trimmed.includes('"mode":"rsa"') || trimmed.includes('"mode": "rsa"')
+    )
+  },
+
+  // ─── RSA-OAEP Asymmetric Encryption ──────────────────────────────
+
+  /**
+   * Generate an RSA-OAEP 4096-bit key pair for asymmetric encryption.
+   * Returns public and private keys as base64url-encoded SPKI/PKCS8.
+   */
+  async generateRSAKeyPair(): Promise<RSAKeyPair> {
+    const keyPair = await crypto.subtle.generateKey(
+      {
+        name: 'RSA-OAEP',
+        modulusLength: 4096,
+        publicExponent: new Uint8Array([1, 0, 1]),
+        hash: 'SHA-256',
+      },
+      true,
+      ['wrapKey', 'unwrapKey']
+    )
+
+    const publicKeyBuf = await crypto.subtle.exportKey('spki', keyPair.publicKey)
+    const privateKeyBuf = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey)
+
+    return {
+      publicKey: arrayBufferToBase64url(publicKeyBuf),
+      privateKey: arrayBufferToBase64url(privateKeyBuf),
+    }
+  },
+
+  /**
+   * Encrypt plaintext + subject using RSA-OAEP for key wrapping.
+   * The content is encrypted with AES-256-GCM; the content key is wrapped
+   * with the recipient's RSA-OAEP public key.
+   */
+  async encryptRSA(
+    plaintext: string,
+    recipientPublicKeyB64: string,
+    subject = '',
+    files: File[] = [],
+    recipientEmail = 'recipient'
+  ): Promise<CryptoPayload> {
+    // Bundle body + subject together
+    const bundle = JSON.stringify({ body: plaintext, subject })
+
+    // 1. Generate random AES-256 content key
+    const contentKey = await crypto.subtle.generateKey(
+      { name: 'AES-GCM', length: 256 },
+      true,
+      ['encrypt', 'decrypt']
+    )
+
+    // 2. Random IV (12 bytes) for body encryption
+    const iv = crypto.getRandomValues(new Uint8Array(12))
+
+    // 3. Encrypt the bundle
+    const ciphertext = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      contentKey,
+      ENC.encode(bundle)
+    )
+
+    // 4. Import recipient's RSA-OAEP public key
+    const recipientPublicKey = await crypto.subtle.importKey(
+      'spki',
+      base64urlToArrayBuffer(recipientPublicKeyB64),
+      { name: 'RSA-OAEP', hash: 'SHA-256' },
+      false,
+      ['wrapKey']
+    )
+
+    // 5. Wrap content key with RSA-OAEP
+    const encryptedKey = await crypto.subtle.wrapKey(
+      'raw',
+      contentKey,
+      recipientPublicKey,
+      { name: 'RSA-OAEP' }
+    )
+
+    // 6. Encrypt file attachments — each gets its own IV, same content key
+    const attachments: EncryptedAttachment[] = []
+    for (const file of files) {
+      const fileData = await file.arrayBuffer()
+      const fileIv = crypto.getRandomValues(new Uint8Array(12))
+      const encryptedData = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv: fileIv },
+        contentKey,
+        fileData
+      )
+      const combined = new Uint8Array(12 + encryptedData.byteLength)
+      combined.set(fileIv, 0)
+      combined.set(new Uint8Array(encryptedData), 12)
+      attachments.push({
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        data: arrayBufferToBase64url(combined.buffer),
+      })
+    }
+
+    const encryptedKeyB64 = arrayBufferToBase64url(encryptedKey)
+
+    return {
+      version: '1.0',
+      mode: 'rsa',
+      subject: '',
+      ciphertext: arrayBufferToBase64url(ciphertext),
+      iv: arrayBufferToBase64url(iv.buffer),
+      encryptedKey: encryptedKeyB64,
+      encryptedKeys: { [recipientEmail]: encryptedKeyB64 },
+      ...(attachments.length > 0 ? { attachments } : {}),
+    }
+  },
+
+  /**
+   * Decrypt a CryptoPayload encrypted in RSA mode.
+   * Uses the recipient's RSA-OAEP private key to unwrap the content key.
+   */
+  async decryptRSA(
+    payload: CryptoPayload,
+    privateKeyB64: string
+  ): Promise<{
+    body: string
+    subject: string
+    attachments?: { name: string; type: string; size: number; data: ArrayBuffer }[]
+  }> {
+    // 1. Import RSA-OAEP private key
+    const privateKey = await crypto.subtle.importKey(
+      'pkcs8',
+      base64urlToArrayBuffer(privateKeyB64),
+      { name: 'RSA-OAEP', hash: 'SHA-256' },
+      false,
+      ['unwrapKey']
+    )
+
+    // 2. Unwrap content key using RSA-OAEP
+    const contentKey = await crypto.subtle.unwrapKey(
+      'raw',
+      base64urlToArrayBuffer(payload.encryptedKey),
+      privateKey,
+      { name: 'RSA-OAEP' },
+      { name: 'AES-GCM' },
+      false,
+      ['decrypt']
+    )
+
+    // 3. Decrypt body+subject bundle
+    const plainBytes = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: base64urlToArrayBuffer(payload.iv) },
+      contentKey,
+      base64urlToArrayBuffer(payload.ciphertext)
+    )
+
+    const bundle = JSON.parse(DEC.decode(plainBytes)) as { body: string; subject: string }
+
+    // 4. Decrypt file attachments if present
+    let attachments:
+      | { name: string; type: string; size: number; data: ArrayBuffer }[]
+      | undefined
+    if (payload.attachments && payload.attachments.length > 0) {
+      attachments = []
+      for (const att of payload.attachments) {
+        const combined = new Uint8Array(base64urlToArrayBuffer(att.data))
+        const fileIv = combined.slice(0, 12)
+        const encryptedData = combined.slice(12)
+        const decryptedData = await crypto.subtle.decrypt(
+          { name: 'AES-GCM', iv: fileIv },
+          contentKey,
+          encryptedData
+        )
+        attachments.push({
+          name: att.name,
+          type: att.type,
+          size: att.size,
+          data: decryptedData,
+        })
+      }
+    }
+
+    return { ...bundle, attachments }
+  },
+
+  // ─── ECDSA Digital Signatures ────────────────────────────────────
+
+  /**
+   * Generate an ECDSA P-384 key pair for digital signatures.
+   * Returns public and private keys as base64url-encoded SPKI/PKCS8.
+   */
+  async generateSigningKeyPair(): Promise<SigningKeyPair> {
+    const keyPair = await crypto.subtle.generateKey(
+      { name: 'ECDSA', namedCurve: 'P-384' },
+      true,
+      ['sign', 'verify']
+    )
+
+    const publicKeyBuf = await crypto.subtle.exportKey('spki', keyPair.publicKey)
+    const privateKeyBuf = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey)
+
+    return {
+      publicKey: arrayBufferToBase64url(publicKeyBuf),
+      privateKey: arrayBufferToBase64url(privateKeyBuf),
+    }
+  },
+
+  /**
+   * Sign data with an ECDSA P-384 private key.
+   * dataToSign should be: payload.ciphertext + payload.iv + payload.encryptedKey
+   * (sign the ciphertext, not plaintext — proves ciphertext integrity)
+   */
+  async sign(dataToSign: string, privateKeyB64: string): Promise<string> {
+    const privateKey = await crypto.subtle.importKey(
+      'pkcs8',
+      base64urlToArrayBuffer(privateKeyB64),
+      { name: 'ECDSA', namedCurve: 'P-384' },
+      false,
+      ['sign']
+    )
+
+    const signature = await crypto.subtle.sign(
+      { name: 'ECDSA', hash: 'SHA-384' },
+      privateKey,
+      ENC.encode(dataToSign)
+    )
+
+    return arrayBufferToBase64url(signature)
+  },
+
+  /**
+   * Verify an ECDSA P-384 signature.
+   * Returns true if the signature is valid, false otherwise.
+   */
+  async verify(
+    dataToSign: string,
+    signatureB64: string,
+    publicKeyB64: string
+  ): Promise<boolean> {
+    const publicKey = await crypto.subtle.importKey(
+      'spki',
+      base64urlToArrayBuffer(publicKeyB64),
+      { name: 'ECDSA', namedCurve: 'P-384' },
+      false,
+      ['verify']
+    )
+
+    return crypto.subtle.verify(
+      { name: 'ECDSA', hash: 'SHA-384' },
+      publicKey,
+      base64urlToArrayBuffer(signatureB64),
+      ENC.encode(dataToSign)
     )
   },
 }

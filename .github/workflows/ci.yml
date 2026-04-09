@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: securemail/package-lock.json
+      - run: npm ci
+        working-directory: securemail
+      - run: npm run lint
+        working-directory: securemail
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: securemail/package-lock.json
+      - run: npm ci
+        working-directory: securemail
+      - run: npm run test:run
+        working-directory: securemail
+
+  build:
+    name: Build
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: securemail/package-lock.json
+      - run: npm ci
+        working-directory: securemail
+      - run: npm run build
+        working-directory: securemail

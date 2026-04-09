@@ -41,11 +41,11 @@ function parseMailMeta(msg: Record<string, unknown>): MailMeta {
   }
 }
 
-/** Decode HTML entities like &#39; &amp; etc. */
+/** Decode HTML entities like &#39; &amp; etc.
+ *  Uses DOMParser instead of innerHTML assignment to avoid XSS via entity injection. */
 function decodeHtmlEntities(str: string): string {
-  const textarea = document.createElement('textarea')
-  textarea.innerHTML = str
-  return textarea.value
+  const doc = new DOMParser().parseFromString(`<!doctype html><body>${str}`, 'text/html')
+  return doc.body.textContent ?? ''
 }
 
 /** Decode base64url Gmail body data to UTF-8 string */

@@ -13,7 +13,7 @@ export function AppShell({ children }: Props) {
   const selectedMail = useMailStore((s) => s.selectedMail)
 
   return (
-    <div className="flex h-screen flex-col bg-gmail-bg overflow-hidden">
+    <div className="flex h-screen flex-col bg-gmail-bg dark:bg-gray-900 overflow-hidden">
       <TopBar />
       <div className="flex flex-1 overflow-hidden min-w-0">
         {/* Sidebar: always hidden on mobile, shown on desktop */}
@@ -25,7 +25,7 @@ export function AppShell({ children }: Props) {
           <MailList />
         </div>
         {/* Main content: hidden on mobile when NO mail is selected */}
-        <main className={`flex-1 overflow-y-auto overflow-x-hidden bg-white min-w-0 ${!selectedMail ? 'hidden md:block' : ''}`}>
+        <main className={`flex-1 overflow-y-auto overflow-x-hidden bg-white dark:bg-gray-900 min-w-0 ${!selectedMail ? 'hidden md:block' : ''}`}>
           {children}
         </main>
       </div>

@@ -165,9 +165,9 @@ export function Workflow() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-white font-[Lexend] text-slate-800 antialiased">
+    <div className="min-h-screen overflow-x-hidden bg-white dark:bg-gray-900 font-[Lexend] text-slate-800 dark:text-gray-200 antialiased">
       {/* ─── NAV ─── */}
-      <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-lg">
+      <nav className="sticky top-0 z-50 border-b border-slate-200/80 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <button onClick={() => navigate('/')} className="flex cursor-pointer items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
@@ -175,7 +175,7 @@ export function Workflow() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
               </svg>
             </div>
-            <span className="text-lg font-semibold tracking-tight text-slate-900">SecureMail</span>
+            <span className="text-lg font-semibold tracking-tight text-slate-900 dark:text-gray-100">SecureMail</span>
           </button>
           <div className="hidden items-center gap-8 md:flex">
             <button onClick={() => navigate('/')} className="cursor-pointer text-sm font-medium text-slate-600 transition-colors hover:text-blue-600">{t('Home', 'Trang chủ')}</button>
@@ -201,7 +201,7 @@ export function Workflow() {
           </div>
         </div>
         {menuOpen && (
-          <div className="relative z-50 border-t border-slate-200 bg-white shadow-lg md:hidden">
+          <div className="relative z-50 border-t border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg md:hidden">
             <div className="mx-auto max-w-7xl px-6 py-4 flex flex-col gap-4">
               <button onClick={() => { setMenuOpen(false); navigate('/') }} className="block cursor-pointer py-1 text-left text-base font-medium text-slate-600">{t('Home', 'Trang chủ')}</button>
               <button onClick={() => { setMenuOpen(false); navigate('/docs') }} className="block cursor-pointer py-1 text-left text-base font-medium text-slate-600">{t('Docs', 'Tài liệu')}</button>
@@ -221,7 +221,7 @@ export function Workflow() {
             <span className="text-xs font-medium text-blue-700">{t('Workflow', 'Quy trình')}</span>
           </div>
 
-          <h1 className="mb-6 text-4xl font-bold leading-[1.1] tracking-tight text-slate-900 md:text-5xl lg:text-6xl">
+          <h1 className="mb-6 text-4xl font-bold leading-[1.1] tracking-tight text-slate-900 dark:text-gray-100 md:text-5xl lg:text-6xl">
             {t('How we vibe coded', 'Cách nhóm tôi vibe code')}
             <br />
             <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
@@ -243,7 +243,7 @@ export function Workflow() {
         <div className="mx-auto max-w-5xl px-6">
           <div className="mb-12 max-w-2xl">
             <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-blue-600">{t('The Loop', 'Vòng lặp')}</p>
-            <h2 className="mb-4 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+            <h2 className="mb-4 text-3xl font-bold tracking-tight text-slate-900 dark:text-gray-100 md:text-4xl">
               {t('Vibe coding is a feedback loop', 'Vibe coding là một vòng lặp phản hồi')}
             </h2>
             <p className="text-lg text-slate-600">
@@ -292,7 +292,7 @@ export function Workflow() {
                 },
               ].map((item, i) => (
                 <div key={item.step} className="relative">
-                  <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <div className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
                     <div className="mb-3 flex items-center gap-3">
                       <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
                         {item.step}
@@ -301,7 +301,7 @@ export function Workflow() {
                         <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
                       </svg>
                     </div>
-                    <h3 className="mb-2 text-base font-bold text-slate-900">{t(item.titleEn, item.titleVi)}</h3>
+                    <h3 className="mb-2 text-base font-bold text-slate-900 dark:text-gray-100">{t(item.titleEn, item.titleVi)}</h3>
                     <p className="text-xs leading-relaxed text-slate-600">{t(item.descEn, item.descVi)}</p>
                   </div>
                   {/* Arrow to next step */}
@@ -328,11 +328,11 @@ export function Workflow() {
       </section>
 
       {/* ─── SETUP ─── */}
-      <section className="border-b border-slate-100 bg-slate-50/50 py-20 md:py-24">
+      <section className="border-b border-slate-100 bg-slate-50/50 dark:bg-gray-800/50 py-20 md:py-24">
         <div className="mx-auto max-w-5xl px-6">
           <div className="mb-12 max-w-2xl">
             <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-blue-600">{t('Setup', 'Cài đặt')}</p>
-            <h2 className="mb-4 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+            <h2 className="mb-4 text-3xl font-bold tracking-tight text-slate-900 dark:text-gray-100 md:text-4xl">
               {t('Our setup in 4 steps', 'Setup của nhóm trong 4 bước')}
             </h2>
             <p className="text-lg text-slate-600">
@@ -345,10 +345,10 @@ export function Workflow() {
 
           <div className="grid gap-5 md:grid-cols-2">
             {SETUP_STEPS.map((step) => (
-              <div key={step.numEn} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div key={step.numEn} className="rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-sm">
                 <div className="mb-3 flex items-baseline gap-3">
                   <span className="font-mono text-xs font-bold text-blue-600">{step.numEn}</span>
-                  <h3 className="text-lg font-bold text-slate-900">{t(step.titleEn, step.titleVi)}</h3>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-gray-100">{t(step.titleEn, step.titleVi)}</h3>
                 </div>
                 <p className="mb-4 text-sm leading-relaxed text-slate-600">{t(step.descEn, step.descVi)}</p>
                 <div className="rounded-lg bg-slate-900 px-4 py-3">
@@ -365,7 +365,7 @@ export function Workflow() {
         <div className="mx-auto max-w-5xl px-6">
           <div className="mb-12 max-w-2xl">
             <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-blue-600">{t('Real Prompts', 'Prompt thật')}</p>
-            <h2 className="mb-4 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+            <h2 className="mb-4 text-3xl font-bold tracking-tight text-slate-900 dark:text-gray-100 md:text-4xl">
               {t('Prompts we actually used', 'Những prompt nhóm đã dùng thật')}
             </h2>
             <p className="text-lg text-slate-600">
@@ -380,7 +380,7 @@ export function Workflow() {
             {PROMPTS.map((p, i) => {
               const c = COLOR_MAP[p.color]
               return (
-                <div key={i} className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <div key={i} className="overflow-hidden rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
                   {/* Prompt */}
                   <div className="border-b border-slate-100 p-5 md:p-6">
                     <div className="mb-3 flex items-center gap-2">
@@ -399,7 +399,7 @@ export function Workflow() {
                     </div>
                   </div>
                   {/* Result */}
-                  <div className="bg-slate-50/50 p-5 md:p-6">
+                  <div className="bg-slate-50/50 dark:bg-gray-800/50 p-5 md:p-6">
                     <div className="flex gap-3">
                       <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
                         ✦
@@ -452,7 +452,7 @@ export function Workflow() {
       {/* ─── CTA ─── */}
       <section className="border-b border-slate-100 py-20 md:py-24">
         <div className="mx-auto max-w-3xl px-6 text-center">
-          <h2 className="mb-6 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+          <h2 className="mb-6 text-3xl font-bold tracking-tight text-slate-900 dark:text-gray-100 md:text-4xl">
             {t('Try it yourself', 'Tự thử đi')}
           </h2>
           <p className="mb-10 text-lg leading-relaxed text-slate-600">
@@ -486,7 +486,7 @@ export function Workflow() {
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="border-t-4 border-[#7a1a2e] bg-slate-50 py-10">
+      <footer className="border-t-4 border-[#7a1a2e] bg-slate-50 dark:bg-gray-800 py-10">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-2 px-6 text-center">
           <p className="text-sm text-slate-600">
             {t('SecureMail — Vibe coded with Claude Code', 'SecureMail — Vibe code bằng Claude Code')}

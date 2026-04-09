@@ -15,6 +15,10 @@ export function CipherPanel({ payload }: Props) {
   return (
     <div className="rounded-lg border border-gray-700 bg-gray-900 p-3 sm:p-4">
       <p className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-400">Encrypted Payload</p>
+      {/* SECURITY: dangerouslySetInnerHTML is safe here because highlightJson()
+         escapes &, <, > BEFORE inserting <span> color tags. All user-controlled
+         data (the CryptoPayload values) is HTML-entity-escaped first, preventing
+         any script injection via the highlighted output. See highlightJson.ts. */}
       <pre
         className="overflow-x-auto text-xs leading-relaxed"
         dangerouslySetInnerHTML={{ __html: highlighted }}

@@ -31,12 +31,25 @@ export interface EncryptedAttachment {
 }
 
 export interface CryptoPayload {
-  version: string       // '1.0'
-  mode: 'password'      // symmetric encryption only
-  subject: string       // always empty — real subject inside ciphertext
-  ciphertext: string    // base64 — AES-256-GCM encrypted body+subject bundle
-  iv: string            // base64, 12 bytes — GCM nonce
-  encryptedKey: string  // base64 — AES content key wrapped by AES-KW
-  salt: string          // base64, 16 bytes — PBKDF2 salt
-  attachments?: EncryptedAttachment[]  // encrypted file attachments
+  version: string                       // '1.0'
+  mode: 'password' | 'rsa'             // symmetric or asymmetric encryption
+  subject: string                       // always empty — real subject inside ciphertext
+  ciphertext: string                    // base64url — AES-256-GCM encrypted body+subject bundle
+  iv: string                            // base64url, 12 bytes — GCM nonce
+  encryptedKey: string                  // base64url — wrapped content key (AES-KW for password, RSA-OAEP for rsa)
+  salt?: string                         // base64url, 16 bytes — PBKDF2 salt (password mode only)
+  encryptedKeys?: Record<string, string> // RSA mode — {recipientEmail: base64url(RSA-OAEP wrapped key)}
+  signature?: string                    // ECDSA-P384 signature over ciphertext+iv+encryptedKey (base64url)
+  signerPublicKey?: string              // signer's ECDSA public key (base64url SPKI)
+  attachments?: EncryptedAttachment[]   // encrypted file attachments
+}
+
+export interface RSAKeyPair {
+  publicKey: string    // base64url SPKI
+  privateKey: string   // base64url PKCS8
+}
+
+export interface SigningKeyPair {
+  publicKey: string    // base64url SPKI
+  privateKey: string   // base64url PKCS8
 }

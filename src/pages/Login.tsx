@@ -3,18 +3,18 @@ import { authService } from '../services/authService'
 
 export function Login() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gmail-bg">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gmail-bg dark:bg-gray-900">
       <div className="w-full max-w-sm text-center">
-        <div className="rounded-2xl border border-gmail-border bg-white px-6 py-8 sm:px-10 sm:py-10 shadow-sm">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gmail-sidebar">
+        <div className="rounded-2xl border border-gmail-border dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-8 sm:px-10 sm:py-10 shadow-sm">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gmail-sidebar dark:bg-gray-700">
             <ShieldCheck className="h-7 w-7 text-gmail-blue" />
           </div>
-          <h1 className="text-2xl font-normal text-gmail-text">SecureMail</h1>
-          <p className="mt-1 text-sm text-gmail-text-secondary">End-to-end encrypted email</p>
+          <h1 className="text-2xl font-normal text-gmail-text dark:text-gray-100">SecureMail</h1>
+          <p className="mt-1 text-sm text-gmail-text-secondary dark:text-gray-400">End-to-end encrypted email</p>
 
           <button
             onClick={() => authService.login()}
-            className="mt-8 flex w-full cursor-pointer items-center justify-center gap-3 rounded-md border border-gmail-border bg-white px-4 py-2.5 text-sm font-medium text-gmail-text shadow-sm transition hover:bg-gray-50 active:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="mt-8 flex w-full cursor-pointer items-center justify-center gap-3 rounded-md border border-gmail-border dark:border-gray-600 bg-white dark:bg-gray-700 px-4 py-2.5 text-sm font-medium text-gmail-text dark:text-gray-200 shadow-sm transition hover:bg-gray-50 dark:hover:bg-gray-600 active:bg-gray-100 dark:active:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -25,7 +25,7 @@ export function Login() {
             Sign in with Google
           </button>
 
-          <p className="mt-6 text-xs text-gmail-text-secondary">
+          <p className="mt-6 text-xs text-gmail-text-secondary dark:text-gray-500">
             Uses Google OAuth2 PKCE — no passwords stored
           </p>
         </div>

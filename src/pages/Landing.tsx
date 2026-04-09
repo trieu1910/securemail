@@ -220,11 +220,11 @@ function DemoShowcase({ t }: { t: (en: string, vi: string) => string }) {
   const tab = DEMO_TABS[active]
 
   return (
-    <section id="demo" className="border-t border-slate-100 bg-slate-50/50 py-10 md:py-16 lg:py-20">
+    <section id="demo" className="border-t border-slate-100 dark:border-gray-800 bg-slate-50/50 dark:bg-gray-800/50 py-10 md:py-16 lg:py-20">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-2xl text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-blue-600">{t('Live Demo', 'Demo trực tiếp')}</p>
-          <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+          <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-gray-100 md:text-4xl">
             {t('See it in action', 'Xem ứng dụng hoạt động')}
           </h2>
           <p className="text-lg text-slate-600">
@@ -254,7 +254,7 @@ function DemoShowcase({ t }: { t: (en: string, vi: string) => string }) {
         <div className="mx-auto mt-8 max-w-5xl">
           <button
             onClick={() => setLightbox(true)}
-            className="group block w-full cursor-pointer overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-lg transition-all hover:shadow-xl"
+            className="group block w-full cursor-pointer overflow-hidden rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg transition-all hover:shadow-xl"
           >
             <div className="relative overflow-hidden">
               <img
@@ -263,7 +263,7 @@ function DemoShowcase({ t }: { t: (en: string, vi: string) => string }) {
                 className="w-full transition-transform duration-300 group-hover:scale-[1.01]"
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/10">
-                <span className="flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-medium text-slate-700 opacity-0 shadow-lg backdrop-blur transition-opacity group-hover:opacity-100">
+                <span className="flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-medium text-slate-700 dark:text-gray-200 opacity-0 shadow-lg backdrop-blur transition-opacity group-hover:opacity-100">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
                     <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m3-3h-6" />
                   </svg>
@@ -273,7 +273,7 @@ function DemoShowcase({ t }: { t: (en: string, vi: string) => string }) {
             </div>
           </button>
           <div className="mt-4 text-center">
-            <h3 className="text-lg font-bold text-slate-900">{tab.label}</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-gray-100">{tab.label}</h3>
             <p className="text-sm text-slate-500">{t(tab.descEn, tab.descVi)}</p>
           </div>
         </div>
@@ -315,9 +315,9 @@ export function Landing() {
   const limitations = getLimitations(t)
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-white font-[Lexend] text-slate-800 antialiased">
+    <div className="min-h-screen overflow-x-hidden bg-white dark:bg-gray-900 font-[Lexend] text-slate-800 dark:text-gray-200 antialiased">
       {/* ─── NAV ─── */}
-      <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-lg">
+      <nav className="sticky top-0 z-50 border-b border-slate-200/80 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-white">
@@ -325,15 +325,15 @@ export function Landing() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
               </svg>
             </div>
-            <span className="text-lg font-semibold tracking-tight text-slate-900">SecureMail</span>
+            <span className="text-lg font-semibold tracking-tight text-slate-900 dark:text-gray-100 dark:text-gray-100">SecureMail</span>
           </div>
           <div className="hidden items-center gap-8 md:flex">
-            <a href="#demo" className="text-sm font-medium text-slate-600 transition-colors hover:text-blue-600">{t('Demo', 'Demo')}</a>
-            <a href="#features" className="text-sm font-medium text-slate-600 transition-colors hover:text-blue-600">{t('Features', 'Tính năng')}</a>
-            <a href="#how-it-works" className="text-sm font-medium text-slate-600 transition-colors hover:text-blue-600">{t('How It Works', 'Cách hoạt động')}</a>
-            <a href="#limitations" className="text-sm font-medium text-slate-600 transition-colors hover:text-blue-600">{t('Limitations', 'Hạn chế')}</a>
-            <a href="#team" className="text-sm font-medium text-slate-600 transition-colors hover:text-blue-600">{t('Team', 'Nhóm')}</a>
-            <button onClick={() => navigate('/workflow')} className="cursor-pointer text-sm font-medium text-slate-600 transition-colors hover:text-blue-600">{t('Workflow', 'Quy trình')}</button>
+            <a href="#demo" className="text-sm font-medium text-slate-600 dark:text-gray-400 transition-colors hover:text-blue-600 dark:hover:text-blue-400">{t('Demo', 'Demo')}</a>
+            <a href="#features" className="text-sm font-medium text-slate-600 dark:text-gray-400 transition-colors hover:text-blue-600 dark:hover:text-blue-400">{t('Features', 'Tính năng')}</a>
+            <a href="#how-it-works" className="text-sm font-medium text-slate-600 dark:text-gray-400 transition-colors hover:text-blue-600 dark:hover:text-blue-400">{t('How It Works', 'Cách hoạt động')}</a>
+            <a href="#limitations" className="text-sm font-medium text-slate-600 dark:text-gray-400 transition-colors hover:text-blue-600 dark:hover:text-blue-400">{t('Limitations', 'Hạn chế')}</a>
+            <a href="#team" className="text-sm font-medium text-slate-600 dark:text-gray-400 transition-colors hover:text-blue-600 dark:hover:text-blue-400">{t('Team', 'Nhóm')}</a>
+            <button onClick={() => navigate('/workflow')} className="cursor-pointer text-sm font-medium text-slate-600 dark:text-gray-400 transition-colors hover:text-blue-600 dark:hover:text-blue-400">{t('Workflow', 'Quy trình')}</button>
             <button onClick={() => navigate('/docs')} className="cursor-pointer text-sm font-medium text-blue-600 transition-colors hover:text-blue-700">{t('Docs', 'Tài liệu')}</button>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
@@ -347,7 +347,7 @@ export function Landing() {
             {/* Hamburger menu button - mobile only */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 text-slate-600 transition-colors hover:bg-slate-100 md:hidden"
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-slate-200 dark:border-gray-600 text-slate-600 dark:text-gray-400 transition-colors hover:bg-slate-100 dark:hover:bg-gray-700 md:hidden"
             >
               {menuOpen ? (
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5">
@@ -363,7 +363,7 @@ export function Landing() {
         </div>
         {/* Mobile menu dropdown */}
         {menuOpen && (
-          <div className="relative z-50 border-t border-slate-200 bg-white shadow-lg md:hidden">
+          <div className="relative z-50 border-t border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg md:hidden">
             <div className="mx-auto max-w-7xl px-6 py-4">
               <div className="flex flex-col gap-4">
                 <a href="#demo" onClick={() => setMenuOpen(false)} className="block py-1 text-base font-medium text-slate-600 transition-colors hover:text-blue-600">{t('Demo', 'Demo')}</a>
@@ -394,7 +394,7 @@ export function Landing() {
 
         <div className="relative mx-auto max-w-7xl px-6 pb-20 pt-16 md:pt-24 lg:pt-28">
           {/* University branding — formal card */}
-          <div className="mx-auto mb-12 max-w-2xl rounded-2xl border border-slate-200 bg-white/80 px-8 py-6 shadow-sm backdrop-blur">
+          <div className="mx-auto mb-12 max-w-2xl rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800/80 px-8 py-6 shadow-sm backdrop-blur">
             <div className="flex flex-col items-center text-center gap-4 sm:flex-row sm:text-left sm:gap-5">
               <div className="flex items-center gap-3">
                 <img src="/logo-hub.png" alt="Trường Đại học Ngân hàng TP.HCM" className="h-20 w-auto shrink-0 object-contain" />
@@ -415,7 +415,7 @@ export function Landing() {
               <span className="text-xs font-medium text-blue-700">{t('End-to-End Encrypted', 'Mã hóa đầu cuối')}</span>
             </div>
 
-            <h1 className="mb-6 text-3xl sm:text-4xl font-bold leading-tight tracking-tight text-slate-900 md:text-5xl lg:text-6xl">
+            <h1 className="mb-6 text-3xl sm:text-4xl font-bold leading-tight tracking-tight text-slate-900 dark:text-gray-100 md:text-5xl lg:text-6xl">
               {t('Your emails,', 'Email của bạn,')}{' '}
               <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
                 {t('truly private', 'thật sự riêng tư')}
@@ -424,8 +424,8 @@ export function Landing() {
 
             <p className="mx-auto mb-10 max-w-2xl text-base sm:text-lg leading-relaxed text-slate-600 md:text-xl">
               {t('SecureMail encrypts your email content client-side using', 'SecureMail mã hóa nội dung email phía client bằng')}{' '}
-              <strong className="font-semibold text-slate-700">AES-256-GCM</strong> {t('with', 'với')}{' '}
-              <strong className="font-semibold text-slate-700">PBKDF2</strong> {t('key derivation before it ever touches Gmail. No backend, no compromise.', 'dẫn xuất khóa trước khi gửi lên Gmail. Không backend, không thỏa hiệp.')}
+              <strong className="font-semibold text-slate-700 dark:text-gray-200">AES-256-GCM</strong> {t('with', 'với')}{' '}
+              <strong className="font-semibold text-slate-700 dark:text-gray-200">PBKDF2</strong> {t('key derivation before it ever touches Gmail. No backend, no compromise.', 'dẫn xuất khóa trước khi gửi lên Gmail. Không backend, không thỏa hiệp.')}
             </p>
 
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -442,7 +442,7 @@ export function Landing() {
                 href="https://github.com/trieu1910/securemail"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-300 bg-white px-8 py-3.5 text-base font-semibold text-slate-700 shadow-sm transition-all hover:border-slate-400 hover:bg-slate-50 hover:shadow-md active:scale-[0.97]"
+                className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-300 bg-white px-8 py-3.5 text-base font-semibold text-slate-700 dark:text-gray-200 shadow-sm transition-all hover:border-slate-400 hover:bg-slate-50 hover:shadow-md active:scale-[0.97]"
               >
                 <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
                   <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12Z" />
@@ -457,7 +457,7 @@ export function Landing() {
             {['AES-256-GCM', 'PBKDF2-SHA256', 'AES-KW 256-bit', '100K Iterations', 'Web Crypto API'].map((badge) => (
               <span
                 key={badge}
-                className="rounded-full border border-slate-200 bg-white px-4 py-1.5 text-xs font-medium text-slate-600 shadow-sm"
+                className="rounded-full border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-1.5 text-xs font-medium text-slate-600 shadow-sm"
               >
                 {badge}
               </span>
@@ -471,7 +471,7 @@ export function Landing() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto max-w-2xl text-center">
             <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-red-500">{t('The Problem', 'Vấn đề')}</p>
-            <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+            <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-gray-100 md:text-4xl">
               {t('Why regular email is not safe', 'Tại sao email thông thường không an toàn')}
             </h2>
             <p className="text-lg text-slate-600">
@@ -526,7 +526,7 @@ export function Landing() {
                 <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-red-100 text-red-500">
                   {item.icon}
                 </div>
-                <h3 className="mb-2 text-base font-semibold text-slate-900">{item.title}</h3>
+                <h3 className="mb-2 text-base font-semibold text-slate-900 dark:text-gray-100">{item.title}</h3>
                 <p className="text-sm leading-relaxed text-slate-600">{item.desc}</p>
               </div>
             ))}
@@ -535,11 +535,11 @@ export function Landing() {
       </section>
 
       {/* ─── BEFORE / AFTER ─── */}
-      <section className="border-t border-slate-100 bg-slate-50/50 py-10 md:py-16 lg:py-20">
+      <section className="border-t border-slate-100 dark:border-gray-800 bg-slate-50/50 dark:bg-gray-800/50 py-10 md:py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto max-w-2xl text-center">
             <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-blue-600">{t('Before & After', 'Trước & Sau')}</p>
-            <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+            <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-gray-100 md:text-4xl">
               {t('What changes with SecureMail', 'Thay đổi với SecureMail')}
             </h2>
           </div>
@@ -597,11 +597,11 @@ export function Landing() {
       <DemoShowcase t={t} />
 
       {/* ─── FEATURES ─── */}
-      <section id="features" className="border-t border-slate-100 bg-slate-50/50 py-10 md:py-16 lg:py-20">
+      <section id="features" className="border-t border-slate-100 dark:border-gray-800 bg-slate-50/50 dark:bg-gray-800/50 py-10 md:py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto max-w-2xl text-center">
             <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-blue-600">{t('Security First', 'Bảo mật là ưu tiên')}</p>
-            <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+            <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-gray-100 md:text-4xl">
               {t('Built for zero-trust email', 'Xây dựng cho email không tin cậy')}
             </h2>
             <p className="text-lg text-slate-600">
@@ -613,12 +613,12 @@ export function Landing() {
             {features.map((f) => (
               <div
                 key={f.title}
-                className="group rounded-2xl border border-slate-200/80 bg-white p-8 shadow-sm transition-all duration-200 hover:border-blue-200 hover:shadow-md"
+                className="group rounded-2xl border border-slate-200/80 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 shadow-sm transition-all duration-200 hover:border-blue-200 hover:shadow-md"
               >
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
                   {f.icon}
                 </div>
-                <h3 className="mb-2 text-lg font-semibold text-slate-900">{f.title}</h3>
+                <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-gray-100">{f.title}</h3>
                 <p className="text-sm leading-relaxed text-slate-600">{f.desc}</p>
               </div>
             ))}
@@ -631,7 +631,7 @@ export function Landing() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto max-w-2xl text-center">
             <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-blue-600">{t('How It Works', 'Cách hoạt động')}</p>
-            <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+            <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-gray-100 md:text-4xl">
               {t('Three steps to encrypted email', 'Ba bước để mã hóa email')}
             </h2>
             <p className="text-lg text-slate-600">
@@ -646,11 +646,11 @@ export function Landing() {
                 {i < steps.length - 1 && (
                   <div className="absolute right-0 top-12 hidden h-px w-full translate-x-1/2 bg-gradient-to-r from-blue-300 to-transparent md:block" />
                 )}
-                <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-2xl border border-slate-200 bg-white text-blue-600 shadow-sm">
+                <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-2xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-blue-600 shadow-sm">
                   {s.icon}
                 </div>
                 <span className="mb-2 block text-xs font-bold uppercase tracking-widest text-blue-600">{s.step}</span>
-                <h3 className="mb-2 text-xl font-bold text-slate-900">{s.title}</h3>
+                <h3 className="mb-2 text-xl font-bold text-slate-900 dark:text-gray-100">{s.title}</h3>
                 <p className="text-sm leading-relaxed text-slate-600">{s.desc}</p>
               </div>
             ))}
@@ -722,7 +722,7 @@ export function Landing() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto max-w-2xl text-center">
             <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-blue-600">Technology</p>
-            <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+            <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-gray-100 md:text-4xl">
               Modern tech stack
             </h2>
             <p className="text-lg text-slate-600">
@@ -748,7 +748,7 @@ export function Landing() {
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto max-w-2xl text-center">
             <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-amber-600">{t('Transparency', 'Minh bạch')}</p>
-            <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+            <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-gray-100 md:text-4xl">
               {t('Known limitations', 'Hạn chế đã biết')}
             </h2>
             <p className="text-lg text-slate-600">
@@ -761,7 +761,7 @@ export function Landing() {
 
           <div className="mx-auto mt-14 grid max-w-5xl gap-5 md:grid-cols-2">
             {limitations.map((item) => (
-              <div key={item.title} className="flex gap-4 rounded-xl border border-slate-200 bg-white p-5">
+              <div key={item.title} className="flex gap-4 rounded-xl border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5">
                 <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold uppercase ${
                   item.severity === 'high' ? 'bg-red-100 text-red-600' :
                   item.severity === 'medium' ? 'bg-amber-100 text-amber-600' :
@@ -772,7 +772,7 @@ export function Landing() {
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900">{item.title}</h3>
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-gray-100">{item.title}</h3>
                   <p className="mt-1 text-xs leading-relaxed text-slate-500">{item.desc}</p>
                 </div>
               </div>
@@ -789,7 +789,7 @@ export function Landing() {
       </section>
 
       {/* ─── TEAM ─── */}
-      <section id="team" className="border-t border-slate-100 bg-slate-50/50 py-10 md:py-16 lg:py-20">
+      <section id="team" className="border-t border-slate-100 dark:border-gray-800 bg-slate-50/50 dark:bg-gray-800/50 py-10 md:py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-6">
           {/* Header with university logos */}
           <div className="mx-auto max-w-2xl text-center">
@@ -798,7 +798,7 @@ export function Landing() {
               <img src="/logo-khoa.png" alt="Khoa KHDL" className="h-20 w-auto object-contain" />
             </div>
             <p className="mb-3 text-sm font-semibold uppercase tracking-wider text-[#7a1a2e]">{t('Our Team', 'Đội ngũ')}</p>
-            <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+            <h2 className="mb-4 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-gray-100 md:text-4xl">
               SecureMail
             </h2>
             <p className="text-lg text-slate-600">
@@ -816,7 +816,7 @@ export function Landing() {
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-[#7a1a2e]">{t('Instructor', 'Giảng viên hướng dẫn')}</p>
-                <p className="text-lg font-bold text-slate-900">Nguyễn Hoài Đức</p>
+                <p className="text-lg font-bold text-slate-900 dark:text-gray-100">Nguyễn Hoài Đức</p>
                 <p className="text-xs text-slate-500">{t('Ho Chi Minh City University of Banking', 'Trường Đại học Ngân hàng TP.HCM')}</p>
               </div>
             </div>
@@ -827,12 +827,12 @@ export function Landing() {
             {TEAM.map((m) => (
               <div
                 key={m.mssv}
-                className="group flex flex-col items-center rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-6 text-center shadow-sm transition-all duration-200 hover:border-blue-200 hover:shadow-md"
+                className="group flex flex-col items-center rounded-2xl border border-slate-200/80 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 sm:p-6 text-center shadow-sm transition-all duration-200 hover:border-blue-200 hover:shadow-md"
               >
                 <div className={`mb-4 flex h-16 w-16 items-center justify-center rounded-full text-lg font-bold text-white ${m.color}`}>
                   {m.initials}
                 </div>
-                <h3 className="mb-0.5 text-sm font-bold text-slate-900">{m.name}</h3>
+                <h3 className="mb-0.5 text-sm font-bold text-slate-900 dark:text-gray-100">{m.name}</h3>
                 <p className="mb-2 text-xs font-medium text-slate-400">MSSV: {m.mssv}</p>
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
                   {m.role}
@@ -862,7 +862,7 @@ export function Landing() {
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="border-t-4 border-[#7a1a2e] bg-slate-50 py-10">
+      <footer className="border-t-4 border-[#7a1a2e] bg-slate-50 dark:bg-gray-800 py-10">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-6 px-6 md:flex-row md:justify-between">
           <div className="flex items-center gap-5">
             <img src="/logo-hub.png" alt="Trường Đại học Ngân hàng TP.HCM" className="h-12 sm:h-16 w-auto object-contain" />

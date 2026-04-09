@@ -9,7 +9,7 @@ export function LangToggle({ lang, toggle }: Props) {
   return (
     <button
       onClick={toggle}
-      className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:border-blue-300 hover:text-blue-600"
+      className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-200 dark:border-gray-600 px-3 py-1.5 text-xs font-semibold text-slate-600 dark:text-gray-400 transition-colors hover:border-blue-300 hover:text-blue-600 dark:hover:text-blue-400"
       aria-label="Switch language"
     >
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-3.5 w-3.5">

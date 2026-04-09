@@ -10,10 +10,12 @@ export function useMail() {
   } = useMailStore()
 
   const [loadingMore, setLoadingMore] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchMail = useCallback(async () => {
     if (!accessToken) return
     setLoading(true)
+    setError(null)
     try {
       // encrypted-inbox: fetch from inbox + spam (encrypted mails may land in spam)
       // encrypted-sent: fetch from sent
@@ -38,6 +40,7 @@ export function useMail() {
       }
     } catch (err) {
       console.error('Failed to fetch mail:', err)
+      setError('Failed to load emails / Không thể tải email')
     } finally {
       setLoading(false)
     }
@@ -46,6 +49,7 @@ export function useMail() {
   const loadMore = useCallback(async () => {
     if (!accessToken || !nextPageToken) return
     setLoadingMore(true)
+    setError(null)
     try {
       const apiFolder = currentFolder === 'encrypted-inbox' ? 'inbox'
         : currentFolder === 'encrypted-sent' ? 'sent'
@@ -61,6 +65,7 @@ export function useMail() {
       }
     } catch (err) {
       console.error('Failed to load more mail:', err)
+      setError('Failed to load more emails / Không thể tải thêm email')
     } finally {
       setLoadingMore(false)
     }
@@ -70,5 +75,7 @@ export function useMail() {
     fetchMail()
   }, [fetchMail])
 
-  return { mailList, refresh: fetchMail, loadMore, hasMore: !!nextPageToken, loadingMore }
+  const clearError = useCallback(() => setError(null), [])
+
+  return { mailList, refresh: fetchMail, loadMore, hasMore: !!nextPageToken, loadingMore, error, clearError }
 }
