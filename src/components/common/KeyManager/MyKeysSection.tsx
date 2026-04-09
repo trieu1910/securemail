@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import {
   Key,
   Fingerprint,
   Copy,
   Download,
+  Upload,
   RefreshCw,
   Check,
   Shield,
@@ -26,6 +27,7 @@ export function MyKeysSection({ onToast }: Props) {
   const [generating, setGenerating] = useState(false)
   const [copied, setCopied] = useState(false)
   const [confirmRegen, setConfirmRegen] = useState(false)
+  const importRef = useRef<HTMLInputElement>(null)
 
   const loadKeys = useCallback(async () => {
     const keys = keyStore.getOwnKeys()
@@ -80,18 +82,55 @@ export function MyKeysSection({ onToast }: Props) {
     }
   }
 
-  function downloadPublicKey() {
-    if (!ownKeys.rsaPublicKey) return
-    const blob = new Blob([ownKeys.rsaPublicKey], { type: 'text/plain' })
+  function downloadAllKeys() {
+    const data = JSON.stringify({
+      type: 'securemail-keypair-backup',
+      version: '1.0',
+      rsaPublicKey: ownKeys.rsaPublicKey,
+      rsaPrivateKey: ownKeys.rsaPrivateKey,
+      ecdsaPublicKey: ownKeys.ecdsaPublicKey,
+      ecdsaPrivateKey: ownKeys.ecdsaPrivateKey,
+      exportedAt: new Date().toISOString(),
+    }, null, 2)
+    const blob = new Blob([data], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'securemail-rsa-public-key.pem'
+    a.download = 'securemail-keys-backup.pem'
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
-    onToast(t('Public key downloaded', 'Đã tải xuống khóa công khai'), 'success')
+    onToast(t('All keys exported', 'Đã xuất tất cả khóa'), 'success')
+  }
+
+  async function handleImportKeys(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+    try {
+      const text = await file.text()
+      const data = JSON.parse(text)
+      if (data.type !== 'securemail-keypair-backup') {
+        onToast(t('Invalid backup file', 'File backup không hợp lệ'), 'error')
+        return
+      }
+      if (!data.rsaPublicKey || !data.rsaPrivateKey) {
+        onToast(t('Backup file is missing keys', 'File backup thiếu khóa'), 'error')
+        return
+      }
+      keyStore.saveOwnKeys({
+        rsaPublicKey: data.rsaPublicKey,
+        rsaPrivateKey: data.rsaPrivateKey,
+        ecdsaPublicKey: data.ecdsaPublicKey,
+        ecdsaPrivateKey: data.ecdsaPrivateKey,
+        generatedAt: data.exportedAt ?? new Date().toISOString(),
+      })
+      await loadKeys()
+      onToast(t('Keys restored successfully!', 'Khôi phục khóa thành công!'), 'success')
+    } catch {
+      onToast(t('Failed to read backup file', 'Không đọc được file backup'), 'error')
+    }
   }
 
   const genDate = ownKeys.generatedAt
@@ -107,6 +146,9 @@ export function MyKeysSection({ onToast }: Props) {
         <Key className="h-5 w-5 text-gmail-blue" aria-hidden="true" />
         {t('My Keys', 'Khóa của tôi')}
       </h3>
+
+      {/* Hidden file input for importing backup */}
+      <input ref={importRef} type="file" accept=".pem" className="sr-only" tabIndex={-1} onChange={(e) => void handleImportKeys(e)} />
 
       {!hasKeys ? (
         <div className="mt-4 rounded-xl border border-dashed border-gmail-border bg-gray-50 p-6 text-center">
@@ -125,6 +167,14 @@ export function MyKeysSection({ onToast }: Props) {
           >
             {generating ? <Spinner size="sm" /> : <Key className="h-4 w-4" aria-hidden="true" />}
             {t('Generate Key Pair', 'Tạo cặp khóa')}
+          </button>
+          <button
+            onClick={() => setTimeout(() => importRef.current?.click(), 0)}
+            className="mt-2 inline-flex items-center gap-2 rounded-lg border border-gmail-border bg-white px-5 py-2.5 text-sm font-medium text-gmail-text transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gmail-blue focus:ring-offset-2"
+            aria-label={t('Import keys from backup', 'Nhập khóa từ backup')}
+          >
+            <Upload className="h-4 w-4" aria-hidden="true" />
+            {t('Import .pem Backup', 'Nhập backup .pem')}
           </button>
         </div>
       ) : (
@@ -173,12 +223,20 @@ export function MyKeysSection({ onToast }: Props) {
               {t('Copy Public Key', 'Sao chép khóa')}
             </button>
             <button
-              onClick={downloadPublicKey}
+              onClick={downloadAllKeys}
               className="inline-flex items-center gap-1.5 rounded-lg border border-gmail-border bg-white px-3 py-2 text-sm font-medium text-gmail-text transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gmail-blue focus:ring-offset-1"
-              aria-label={t('Download public key', 'Tải xuống khóa công khai')}
+              aria-label={t('Export all keys', 'Xuất tất cả khóa')}
             >
               <Download className="h-4 w-4" />
-              {t('Download .pem', 'Tải .pem')}
+              {t('Export Keys', 'Xuất khóa')}
+            </button>
+            <button
+              onClick={() => setTimeout(() => importRef.current?.click(), 0)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gmail-border bg-white px-3 py-2 text-sm font-medium text-gmail-text transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gmail-blue focus:ring-offset-1"
+              aria-label={t('Import keys from backup', 'Nhập khóa từ backup')}
+            >
+              <Upload className="h-4 w-4" />
+              {t('Import .pem', 'Nhập .pem')}
             </button>
             {!confirmRegen ? (
               <button
