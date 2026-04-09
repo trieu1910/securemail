@@ -303,26 +303,36 @@ export function ComposeModal({ onSent }: Props) {
 
           {/* File attachments */}
           <div className="space-y-2">
+            {/* File input — use sr-only instead of hidden to avoid Android Chrome click() issues */}
             <input
               ref={fileInputRef}
               type="file"
               multiple
-              className="hidden"
+              className="sr-only"
+              tabIndex={-1}
               onChange={(e) => {
-                if (e.target.files) {
-                  setFiles((prev) => [...prev, ...Array.from(e.target.files!)])
-                  e.target.value = ''
+                const selected = e.target.files
+                if (selected && selected.length > 0) {
+                  setFiles((prev) => [...prev, ...Array.from(selected)])
                 }
+                // Reset value so same file can be re-selected
+                e.target.value = ''
               }}
             />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-gmail-text-secondary dark:text-gray-400 hover:bg-gmail-hover dark:hover:bg-gray-700 transition-colors"
+            <label
+              role="button"
+              tabIndex={0}
+              className="flex cursor-pointer touch-manipulation items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm text-gmail-text-secondary dark:text-gray-400 hover:bg-gmail-hover dark:hover:bg-gray-700 transition-colors"
+              onClick={(e) => {
+                e.preventDefault()
+                // setTimeout ensures the click is in a new microtask — fixes Android Chrome
+                setTimeout(() => fileInputRef.current?.click(), 0)
+              }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef.current?.click() } }}
             >
               <Paperclip className="h-4 w-4" />
               {t('Attach files', 'Đính kèm tệp')}
-            </button>
+            </label>
             {files.length > 0 && (
               <div className="space-y-1.5">
                 {files.map((file, idx) => (
