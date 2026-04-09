@@ -107,6 +107,50 @@ const PROMPTS = [
     tagVi: 'Git',
     color: 'slate',
   },
+  {
+    titleEn: 'Security hardening',
+    titleVi: 'Tăng cường bảo mật',
+    promptEn: 'Check xem code hiện tại có thể update được những gì, risk như nào. Toàn quyền dùng MCP GitNexus.',
+    promptVi: 'Check xem code hiện tại có thể update được những gì, risk như nào. Toàn quyền dùng MCP GitNexus.',
+    resultEn: 'PM-Leader analyzed the entire codebase, found 12 security issues (3 CRITICAL). Then delegated to SecEng agents who added CSP headers, fixed iframe sandbox, added Zod validation, token validation, and decrypt rate limiting — all in parallel.',
+    resultVi: 'PM-Leader phân tích toàn bộ codebase, phát hiện 12 lỗ hổng bảo mật (3 CRITICAL). Sau đó delegate cho SecEng agents thêm CSP headers, sửa iframe sandbox, thêm Zod validation, xác thực token, và giới hạn tốc độ giải mã — tất cả song song.',
+    tagEn: 'Security',
+    tagVi: 'Bảo mật',
+    color: 'red',
+  },
+  {
+    titleEn: 'RSA-OAEP + ECDSA signatures',
+    titleVi: 'RSA-OAEP + Chữ ký số ECDSA',
+    promptEn: 'Implement RSA-OAEP 4096-bit asymmetric encryption + ECDSA P-384 digital signatures. Full key management UI.',
+    promptVi: 'Implement RSA-OAEP 4096-bit mã hóa bất đối xứng + ECDSA P-384 chữ ký số. Full UI quản lý khóa.',
+    resultEn: 'SecEng implemented crypto (RSA keygen, encrypt/decrypt, ECDSA sign/verify) while FE-Dev built KeyManager UI simultaneously. 40 crypto tests written. Both agents ran in parallel — different files, no conflicts.',
+    resultVi: 'SecEng implement crypto (RSA keygen, encrypt/decrypt, ECDSA sign/verify) trong khi FE-Dev xây KeyManager UI cùng lúc. 40 crypto tests được viết. Hai agent chạy song song — khác file, không xung đột.',
+    tagEn: 'Crypto',
+    tagVi: 'Mã hóa',
+    color: 'emerald',
+  },
+  {
+    titleEn: 'Dark mode + Keyboard shortcuts + Drag-drop',
+    titleVi: 'Dark mode + Phím tắt + Kéo thả file',
+    promptEn: 'Thêm dark mode, keyboard shortcuts (j/k/r/f/c), drag & drop attachments, undo send 7 giây.',
+    promptVi: 'Thêm dark mode, keyboard shortcuts (j/k/r/f/c), drag & drop attachments, undo send 7 giây.',
+    resultEn: '3 FE-Dev agents ran in parallel: one for dark mode (25+ components), one for keyboard shortcuts, one for drag-drop + undo send. All built and merged in one session.',
+    resultVi: '3 FE-Dev agents chạy song song: 1 cho dark mode (25+ components), 1 cho phím tắt, 1 cho kéo thả + hoàn tác gửi. Tất cả xong trong 1 session.',
+    tagEn: 'UX',
+    tagVi: 'UX',
+    color: 'purple',
+  },
+  {
+    titleEn: 'Testing from 19% to 80%+',
+    titleVi: 'Testing từ 19% lên 80%+',
+    promptEn: 'Write tests to reach 80%+ coverage. Service tests, hook tests, component tests, store tests.',
+    promptVi: 'Viết tests để đạt 80%+ coverage. Test services, hooks, components, store.',
+    resultEn: '2 QA agents wrote 137 new tests in parallel: one for services + utils, one for hooks + components. From 7 test files (40 tests) to 18 files (177 tests). All pass.',
+    resultVi: '2 QA agents viết 137 tests mới song song: 1 cho services + utils, 1 cho hooks + components. Từ 7 file test (40 tests) lên 18 file (177 tests). Tất cả pass.',
+    tagEn: 'Test',
+    tagVi: 'Test',
+    color: 'amber',
+  },
 ]
 
 const TIPS = [
@@ -145,6 +189,12 @@ const TIPS = [
     titleVi: 'Để nó dùng tools',
     bodyEn: 'Install MCP servers (Playwright, Context7). Claude can take screenshots, fetch live docs, and verify its own work.',
     bodyVi: 'Cài MCP servers (Playwright, Context7). Claude có thể chụp ảnh, fetch docs realtime, và verify công việc của chính nó.',
+  },
+  {
+    titleEn: 'Use PM-Leader pattern',
+    titleVi: 'Dùng pattern PM-Leader',
+    bodyEn: 'Set up a CLAUDE.md that makes Claude act as PM-Leader. It reads agent prompt files, delegates to specialist sub-agents (SecEng, FE-Dev, QA), and reviews all output before presenting results.',
+    bodyVi: 'Setup CLAUDE.md để Claude đóng vai PM-Leader. Nó đọc file prompt agent, delegate cho sub-agent chuyên biệt (SecEng, FE-Dev, QA), và review toàn bộ output trước khi trình bày kết quả.',
   },
 ]
 

@@ -21,6 +21,9 @@ const getNAV = (t: (en: string, vi: string) => string) => [
       { id: 'key-wrapping', label: t('Key Wrapping (AES-KW)', 'Đóng gói khóa (AES-KW)') },
       { id: 'aes-gcm', label: 'AES-256-GCM' },
       { id: 'payload-format', label: t('CryptoPayload Format', 'Định dạng CryptoPayload') },
+      { id: 'rsa-oaep', label: t('RSA-OAEP Encryption', 'Mã hóa RSA-OAEP') },
+      { id: 'ecdsa-signatures', label: t('ECDSA Signatures', 'Chữ ký số ECDSA') },
+      { id: 'key-management', label: t('Key Management', 'Quản lý khóa') },
     ],
   },
   {
@@ -46,6 +49,8 @@ const getNAV = (t: (en: string, vi: string) => string) => [
       { id: 'known-limitations', label: t('Known Limitations', 'Hạn chế đã biết') },
       { id: 'devtools-attacks', label: t('DevTools Attack Vectors', 'Tấn công qua DevTools') },
       { id: 'production-mitigations', label: t('Production Mitigations', 'Giải pháp Production') },
+      { id: 'csp-headers', label: t('CSP Headers', 'CSP Headers') },
+      { id: 'rate-limiting', label: t('Rate Limiting', 'Giới hạn tốc độ') },
     ],
   },
   {
@@ -54,6 +59,7 @@ const getNAV = (t: (en: string, vi: string) => string) => [
       { id: 'tech-stack', label: t('Tech Stack', 'Công nghệ sử dụng') },
       { id: 'project-structure', label: t('Project Structure', 'Cấu trúc dự án') },
       { id: 'data-types', label: t('Data Types', 'Kiểu dữ liệu') },
+      { id: 'new-features', label: t('v2.0 Features', 'Tính năng v2.0') },
     ],
   },
 ]
@@ -557,6 +563,77 @@ JSON.stringify({ body: "Hello, this is secret", subject: "Meeting notes" })
 // After encryption, Gmail only sees:
 Subject: [SecureMail] encrypted message
 Body: {"version":"1.0","mode":"password","ciphertext":"...","iv":"...","encryptedKey":"...","salt":"..."}`}</Code>
+
+      {/* ─── RSA-OAEP ─── */}
+      <H2 id="rsa-oaep">{t('RSA-OAEP Asymmetric Encryption', 'Mã hóa bất đối xứng RSA-OAEP')}</H2>
+      <p>{t(
+        'SecureMail supports RSA-OAEP 4096-bit public key encryption as an alternative to password-based encryption. This allows secure communication without sharing a password.',
+        'SecureMail hỗ trợ mã hóa khóa công khai RSA-OAEP 4096-bit thay thế cho mã hóa bằng mật khẩu. Cho phép giao tiếp bảo mật mà không cần chia sẻ mật khẩu.'
+      )}</p>
+      <H3>{t('RSA Key Generation', 'Tạo khóa RSA')}</H3>
+      <Code lang="typescript">{`const keyPair = await crypto.subtle.generateKey(
+  { name: 'RSA-OAEP', modulusLength: 4096,
+    publicExponent: new Uint8Array([1, 0, 1]), hash: 'SHA-256' },
+  true, ['wrapKey', 'unwrapKey']
+)`}</Code>
+      <H3>{t('RSA Encryption Flow', 'Quy trình mã hóa RSA')}</H3>
+      <FlowDiagram steps={[
+        { label: t('Recipient Public Key', 'Khóa công khai') },
+        { label: 'RSA-OAEP Wrap' },
+        { label: 'AES-256 Content Key' },
+        { label: 'AES-256-GCM' },
+        { label: t('Ciphertext', 'Bản mã') },
+      ]} />
+      <p>{t(
+        'Instead of PBKDF2, the content key is wrapped directly with the recipient\'s RSA public key. Only the corresponding private key can unwrap it.',
+        'Thay vì PBKDF2, khóa nội dung được đóng gói trực tiếp bằng khóa công khai RSA. Chỉ khóa riêng tư tương ứng mới giải được.'
+      )}</p>
+      <Code lang="typescript">{`// RSA mode CryptoPayload
+{ version: '1.0', mode: 'rsa',
+  ciphertext: '...',    // AES-256-GCM encrypted body+subject
+  iv: '...',             // 12-byte nonce
+  encryptedKey: '...',   // RSA-OAEP wrapped content key
+  encryptedKeys: { 'recipient@email.com': '...' },
+  signature: '...',      // optional ECDSA signature
+  signerPublicKey: '...' }`}</Code>
+
+      {/* ─── ECDSA ─── */}
+      <H2 id="ecdsa-signatures">{t('ECDSA Digital Signatures', 'Chữ ký số ECDSA')}</H2>
+      <p>{t(
+        'ECDSA P-384 signatures verify sender authenticity and detect tampering. The ciphertext (not plaintext) is signed.',
+        'Chữ ký ECDSA P-384 xác minh danh tính người gửi và phát hiện giả mạo. Bản mã (không phải bản rõ) được ký.'
+      )}</p>
+      <Code lang="typescript">{`// Sign ciphertext to prove integrity
+const dataToSign = payload.ciphertext + payload.iv + payload.encryptedKey
+const signature = await crypto.subtle.sign(
+  { name: 'ECDSA', hash: 'SHA-384' },
+  privateSigningKey,
+  new TextEncoder().encode(dataToSign)
+)`}</Code>
+      <Callout type="info">
+        {t(
+          'ECDSA P-384 was chosen over Ed25519 because Web Crypto API does not natively support EdDSA. P-384 provides 192-bit security level.',
+          'ECDSA P-384 được chọn thay Ed25519 vì Web Crypto API không hỗ trợ EdDSA gốc. P-384 cung cấp bảo mật 192-bit.'
+        )}
+      </Callout>
+
+      {/* ─── Key Management ─── */}
+      <H2 id="key-management">{t('Key Management', 'Quản lý khóa')}</H2>
+      <p>{t(
+        'Key pairs are stored in localStorage. Users generate, export, import, and verify keys through the Key Manager UI.',
+        'Cặp khóa được lưu trong localStorage. Người dùng tạo, xuất, nhập và xác minh khóa qua giao diện Quản lý khóa.'
+      )}</p>
+      <Table
+        headers={[t('Key Type', 'Loại khóa'), t('Algorithm', 'Thuật toán'), t('Purpose', 'Mục đích')]}
+        rows={[
+          ['RSA-OAEP', '4096-bit, SHA-256', t('Encrypt/decrypt content keys', 'Mã hóa/giải mã khóa nội dung')],
+          ['ECDSA', 'P-384, SHA-384', t('Sign/verify messages', 'Ký/xác minh tin nhắn')],
+        ]}
+      />
+      <p>{t(
+        'Key fingerprints are the first 8 bytes of SHA-256 hash of the public key, displayed as colon-separated hex (e.g., a3:b1:4f:...).',
+        'Vân tay khóa là 8 byte đầu hash SHA-256 khóa công khai, hiển thị hex phân cách dấu hai chấm (vd: a3:b1:4f:...).'
+      )}</p>
 
       {/* ─── OAuth2 ─── */}
       <H2 id="oauth2">{t('OAuth2 PKCE Flow', 'Quy trình OAuth2 PKCE')}</H2>
@@ -1110,6 +1187,43 @@ const isValid = await crypto.subtle.verify(
         )}
       </Callout>
 
+      {/* ─── CSP HEADERS ─── */}
+      <H2 id="csp-headers">{t('Content Security Policy', 'Chính sách bảo mật nội dung')}</H2>
+      <p>{t(
+        'SecureMail implements strict CSP headers to prevent XSS attacks.',
+        'SecureMail triển khai CSP headers nghiêm ngặt để ngăn chặn XSS.'
+      )}</p>
+      <Code lang="HTTP Header">{`Content-Security-Policy:
+  default-src 'self'; script-src 'self';
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  connect-src 'self' https://accounts.google.com
+    https://oauth2.googleapis.com https://www.googleapis.com
+    https://gmail.googleapis.com;
+  img-src 'self' data: https:; frame-src 'self';
+  object-src 'none'; base-uri 'self'
+
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=(), microphone=(), geolocation=()`}</Code>
+
+      {/* ─── RATE LIMITING ─── */}
+      <H2 id="rate-limiting">{t('Decrypt Rate Limiting', 'Giới hạn tốc độ giải mã')}</H2>
+      <p>{t(
+        'Client-side exponential backoff protects against brute-force password guessing.',
+        'Exponential backoff phía client bảo vệ chống dò mật khẩu brute-force.'
+      )}</p>
+      <Table
+        headers={[t('Attempt', 'Lần thử'), t('Delay', 'Độ trễ'), t('Message', 'Thông báo')]}
+        rows={[
+          ['1', '2s', t('Wrong password. 4 attempts left.', 'Sai mật khẩu. Còn 4 lần.')],
+          ['2', '4s', t('Wrong password. 3 attempts left.', 'Sai mật khẩu. Còn 3 lần.')],
+          ['3', '8s', t('Wrong password. 2 attempts left.', 'Sai mật khẩu. Còn 2 lần.')],
+          ['4', '16s', t('Wrong password. 1 attempt left.', 'Sai mật khẩu. Còn 1 lần.')],
+          ['5', t('Locked', 'Khóa'), t('Reload page required.', 'Cần tải lại trang.')],
+        ]}
+      />
+
       {/* ─── TECH STACK ─── */}
       <H2 id="tech-stack">{t('Tech Stack', 'Công nghệ sử dụng')}</H2>
       <Table
@@ -1196,6 +1310,28 @@ const isValid = await crypto.subtle.verify(
   encryptedKey: string   // base64url — AES content key wrapped by AES-KW
   salt: string           // base64url, 16 bytes — PBKDF2 salt
 }`}</Code>
+
+      {/* ─── v2.0 FEATURES ─── */}
+      <H2 id="new-features">{t('v2.0 New Features', 'Tính năng mới v2.0')}</H2>
+      <Table
+        headers={[t('Feature', 'Tính năng'), t('Description', 'Mô tả')]}
+        rows={[
+          ['RSA-OAEP 4096-bit', t('Public key encryption — no shared password needed', 'Mã hóa khóa công khai — không cần chia sẻ mật khẩu')],
+          ['ECDSA P-384', t('Verify sender identity and message integrity', 'Xác minh danh tính người gửi và toàn vẹn tin nhắn')],
+          [t('Key Manager UI', 'UI Quản lý khóa'), t('Generate, export, import keys with fingerprint display', 'Tạo, xuất, nhập khóa với hiển thị vân tay')],
+          [t('Dark Mode', 'Chế độ tối'), t('System/light/dark toggle across 25+ components', 'Chuyển đổi hệ thống/sáng/tối cho 25+ components')],
+          [t('Keyboard Shortcuts', 'Phím tắt'), t('j/k navigate, r reply, f forward, c compose, ? help', 'j/k điều hướng, r trả lời, f chuyển tiếp, c soạn, ? trợ giúp')],
+          [t('Drag & Drop', 'Kéo & Thả'), t('Drag files onto compose modal to attach', 'Kéo file vào modal soạn để đính kèm')],
+          [t('Undo Send', 'Hoàn tác gửi'), t('7-second countdown with cancel option', 'Đếm ngược 7 giây với tùy chọn hủy')],
+          ['CSP Headers', t('Content Security Policy preventing XSS', 'Chính sách bảo mật nội dung ngăn XSS')],
+          [t('Token Validation', 'Xác thực Token'), t('Validates OAuth token, cached 5 min', 'Xác thực OAuth token, cache 5 phút')],
+          [t('Rate Limiting', 'Giới hạn tốc độ'), t('Exponential backoff + lock after 5 fails', 'Exponential backoff + khóa sau 5 lần thất bại')],
+          [t('Lazy Loading', 'Tải lười'), t('Route code splitting: 543KB → 225KB initial', 'Code splitting theo route: 543KB → 225KB ban đầu')],
+          ['177 Tests', t('80%+ coverage: services, hooks, components', '80%+ coverage: services, hooks, components')],
+          ['PWA', t('Add to Home Screen on Android Chrome', 'Thêm vào màn hình chính trên Android Chrome')],
+          ['GitHub Actions', t('Automated lint → test → build CI pipeline', 'Pipeline CI tự động lint → test → build')],
+        ]}
+      />
 
       {/* ─── END ─── */}
       <div className="mt-16 rounded-lg border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800 p-6 text-center">
@@ -1331,7 +1467,7 @@ export function Docs() {
                 )}
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
-                {['AES-256-GCM', 'PBKDF2', 'Web Crypto API', 'OAuth2 PKCE', 'Zero Backend'].map((tag) => (
+                {['AES-256-GCM', 'RSA-OAEP 4096', 'ECDSA P-384', 'PBKDF2', 'Web Crypto API', 'OAuth2 PKCE', 'Zero Backend'].map((tag) => (
                   <span key={tag} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
                     {tag}
                   </span>
